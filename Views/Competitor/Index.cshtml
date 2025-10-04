@@ -1,0 +1,243 @@
+@model PricePulse.ViewModels.CompetitorDiscoveryViewModel
+@{
+    ViewData["Title"] = "PricePulse - Competitor Discovery";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5d288a",
+                        "accent": "#f94037",
+                        "background-light": "#eff9f2",
+                        "secondary-accent": "#0cb8ca"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-gray-800">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-8">
+                    <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-10" />
+                    <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                </div>
+                <nav class="space-y-2">
+                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors" href="@Url.Action("Index", "Dashboard")">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg bg-primary text-white shadow-lg shadow-primary/30" href="@Url.Action("Index", "Competitor")">
+                        <span class="material-symbols-outlined">radar</span>
+                        <span>Competitors</span>
+                    </a>
+                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors" href="@Url.Action("Index", "ProductDiscovery")">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                        <span>Products</span>
+                    </a>
+                    
+                </nav>
+            </div>
+            <div class="p-6 border-t border-gray-200">
+                <div class="flex items-center space-x-4">
+                    <div>
+                        <p class="font-semibold text-sm">@(User?.Identity?.Name ?? "User")</p>
+                        <p class="text-xs text-gray-500">@(User?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "user@example.com")</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            <div class="p-6 lg:p-8">
+                <div class="max-w-7xl mx-auto">
+                    <div class="bg-white rounded-xl border border-gray-200 p-8 mb-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                            <div class="lg:col-span-2">
+                                <h3 class="text-2xl font-bold text-gray-900">Discover Your Competitors Automatically</h3>
+                                <p class="mt-2 text-gray-600">Enter your domain to find competitors, powered by the Semrush API.</p>
+                            </div>
+                            <div class="lg:col-span-3 flex items-center gap-4">
+                                <form id="semrushDiscoveryForm" action="@Url.Action("DiscoverCompetitors", "Competitor")" method="post" class="flex-grow flex items-center gap-4">
+                                    <div class="relative flex-grow">
+                                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary">public</span>
+                                        <input class="w-full pl-12 pr-4 py-4 bg-gray-100 border-2 border-transparent rounded-lg focus:ring-0 focus:border-primary focus:shadow-input-focus transition-shadow duration-300" 
+                                               placeholder="yourdomain.com" type="text" name="Domain" value="@Model.Domain" required/>
+                                    </div>
+                                    <button type="submit" class="bg-primary text-white px-8 py-4 rounded-lg font-bold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-lg shadow-primary/30 flex items-center justify-center space-x-2 whitespace-nowrap">
+                                        <span class="material-symbols-outlined">auto_awesome</span>
+                                        <span>Discover</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 text-xs text-gray-500 flex items-center justify-end space-x-2">
+                        <span>Powered by</span>
+                        <img alt="Semrush logo" class="h-4" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxnx4DuoZq7-U1Bz-LQsRymtONiU1l32mLrCU8jpg5XkkFFMaqUnwxdkZTVGRFhp3kwxbuDR3I9Y98EVdyFcV_4FWyy24j-3RZfPyxChqsr1E_L330wm7bBqdp7QvVeGNuHL_CWAloQgBK9ptkTw_woIneAs0At4ex10fYEC4cEluwXti9RKEv5QM7lp9z7Iqy_fScsYjbZCa4x-iLo1kL1K6K-kNZgoDWeaJzM43p6TwhbFowJTTarKlLa4whG-GxLfa_i5iZ_g"/>
+                    </div>
+                </div>
+                
+                @if (TempData["Success"] != null)
+                {
+                    <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                        @TempData["Success"]
+                    </div>
+                }
+                
+                @if (TempData["Error"] != null)
+                {
+                    <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        @TempData["Error"]
+                    </div>
+                }
+                
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <div class="xl:col-span-2 bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
+                        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-900">Suggested Competitors</h3>
+                            <div class="flex items-center space-x-3">
+                                @if (Model.DiscoveredCompetitors?.Any() == true)
+                                {
+                                    <div class="relative semrush-loader">
+                                        <div class="bg-secondary-accent/10 text-secondary-accent px-4 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-2">
+                                            <span class="material-symbols-outlined text-sm animate-spin">autorenew</span>
+                                            <span>Updating...</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="divide-y divide-gray-100 flex-1">
+                            @if (Model.DiscoveredCompetitors?.Any() == true)
+                            {
+                                @foreach (var competitor in Model.DiscoveredCompetitors)
+                                {
+                                    <div class="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors duration-200">
+                                        <div class="flex items-center space-x-4">
+                                            <img alt="Competitor logo" class="h-10 w-10 rounded-full" src="https://via.placeholder.com/40x40/0cb8ca/ffffff?text=@Uri.EscapeDataString(competitor.Domain.Substring(0, Math.Min(2, competitor.Domain.Length)).ToUpper())"/>
+                                            <div>
+                                                <p class="font-semibold text-gray-900">@competitor.Domain</p>
+                                                <p class="text-sm text-gray-500">@competitor.CommonKeywords.ToString("N0") common keywords</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            <form action="@Url.Action("ConfirmCompetitors", "Competitor")" method="post" class="inline">
+                                                <input type="hidden" name="Domain" value="@Model.Domain" />
+                                                <input type="hidden" name="SelectedCompetitorIds" value="0" />
+                                                <input type="hidden" name="Competitors[0].Domain" value="@competitor.Domain" />
+                                                <input type="hidden" name="Competitors[0].CommonKeywords" value="@competitor.CommonKeywords" />
+                                                <input type="hidden" name="Competitors[0].OrganicKeywords" value="@competitor.OrganicKeywords" />
+                                                <input type="hidden" name="Competitors[0].OrganicTraffic" value="@competitor.OrganicTraffic" />
+                                                <input type="hidden" name="Competitors[0].OrganicCost" value="@competitor.OrganicCost" />
+                                                <button type="submit" class="px-5 py-2 text-sm font-bold text-white bg-primary rounded-lg hover:bg-primary/90 transition-transform transform hover:scale-105">Add</button>
+                                            </form>
+                                            <form action="@Url.Action("Index", "Competitor")" method="post" class="inline">
+                                                <input type="hidden" name="Domain" value="@Model.Domain" />
+                                                <button type="submit" class="p-2 text-gray-400 hover:text-accent rounded-full transition">
+                                                    <span class="material-symbols-outlined">close</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else if (!string.IsNullOrEmpty(Model.Domain))
+                            {
+                                <div class="p-6 text-center text-gray-500">
+                                    No suggested competitors found. Try a different domain or add manually.
+                                </div>
+                            }
+                        </div>
+                        <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                            <button class="text-sm text-primary font-medium hover:underline">View all suggestions</button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Add Manually</h3>
+                            <form action="@Url.Action("SaveManualCompetitors", "Competitor")" method="post" class="space-y-4">
+                                <input type="hidden" name="Domain" value="@Model.Domain" />
+                                <input class="w-full bg-gray-100 border-2 border-transparent rounded-lg py-3 px-4 focus:ring-0 focus:border-secondary-accent focus:shadow-input-focus transition-shadow duration-300" 
+                                       placeholder="competitor-domain.com" type="text" name="Competitors[0].Website"/>
+                                <button type="submit" class="w-full bg-secondary-accent text-white px-6 py-3 rounded-lg font-bold hover:bg-secondary-accent/90 transition-transform transform hover:scale-105 shadow-lg shadow-secondary-accent/30 flex items-center justify-center space-x-2">
+                                    <span class="material-symbols-outlined">add_circle</span>
+                                    <span>Add Competitor</span>
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl border border-gray-200">
+                            <div class="p-6 border-b border-gray-200">
+                                <h3 class="text-xl font-semibold text-gray-900">Currently Monitored</h3>
+                            </div>
+                            <div class="divide-y divide-gray-100">
+                                <div class="p-6 text-center text-gray-500">
+                                    No competitors are currently being monitored.
+                                </div>
+                            </div>
+                            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                                <button class="w-full sm:w-auto bg-accent text-white px-6 py-3 rounded-lg font-bold hover:bg-accent/90 transition-transform transform hover:scale-105 shadow-lg shadow-accent/30 flex items-center justify-center space-x-2">
+                                    <span class="material-symbols-outlined">check_circle</span>
+                                    <span>Confirm Selections</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('semrushDiscoveryForm').addEventListener('submit', function() {
+            const button = this.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="material-symbols-outlined animate-spin">autorenew</span><span>Discovering...</span>';
+            button.disabled = true;
+            
+            // Re-enable after 5 seconds (form should have submitted by then)
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

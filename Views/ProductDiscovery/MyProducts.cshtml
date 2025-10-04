@@ -1,0 +1,245 @@
+@model PricePulse.ViewModels.MyProductsViewModel
+@{
+    ViewData["Title"] = "PricePulse - My Products";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5d288a",
+                        "accent": "#f94037",
+                        "secondary-accent": "#0cb8ca",
+                        "background-light": "#eff9f2"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-gray-800">
+    <div class="flex flex-col min-h-screen">
+        <header class="sticky top-0 z-50 bg-background-light/90 backdrop-blur-md">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20 border-b border-gray-200">
+                    <div class="flex items-center space-x-3">
+                <img src="/images/logo.png" alt="PricePulse logo" class="h-8 w-8" />
+                        <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                    </div>
+                    <nav class="hidden md:flex items-center space-x-8">
+                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Dashboard</a>
+                        <a class="text-sm font-medium text-primary border-b-2 border-primary" href="@Url.Action("MyProducts", "ProductDiscovery")">My Products</a>
+                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Discover</a>
+                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("ManualEntry", "ProductDiscovery")">Manual Entry</a>
+                    </nav>
+                    <div class="flex items-center space-x-4">
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="flex-grow">
+            <div class="py-12">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="max-w-6xl mx-auto">
+                        <div class="mb-8">
+                            <h1 class="text-4xl font-bold text-gray-900 mb-2">My Products</h1>
+                            <p class="text-lg text-gray-600">Manage and track your saved products for @Model.CompanyName</p>
+                        </div>
+
+                        @if (TempData["Message"] != null)
+                        {
+                            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                                @TempData["Message"]
+                            </div>
+                        }
+
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                                @TempData["Error"]
+                            </div>
+                        }
+
+                        @if (Model.OwnProducts.Any())
+                        {
+                            <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                                    <div class="flex items-center justify-between">
+                                        <h2 class="text-lg font-semibold text-gray-900">Saved Products (@Model.TotalProducts)</h2>
+                                        <div class="flex items-center space-x-4">
+                                            <a href="@Url.Action("Index", "ProductDiscovery")" class="inline-flex items-center px-4 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors">
+                                                <span class="material-symbols-outlined text-sm mr-2">add</span>
+                                                Discover More
+                                            </a>
+                                            <a href="@Url.Action("ManualEntry", "ProductDiscovery")" class="inline-flex items-center px-4 py-2 text-sm font-medium text-secondary-accent bg-secondary-accent/10 rounded-lg hover:bg-secondary-accent/20 transition-colors">
+                                                <span class="material-symbols-outlined text-sm mr-2">edit</span>
+                                                Add Manually
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="divide-y divide-gray-200">
+                                    @foreach (var product in Model.OwnProducts)
+                                    {
+                                        <div class="p-6 hover:bg-gray-50 transition-colors">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex-1">
+                                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">@product.ProductName</h3>
+                                                    @if (!string.IsNullOrEmpty(product.ProductWebsiteUrl))
+                                                    {
+                                                        <div class="flex items-center space-x-2 mb-3">
+                                                            <a href="@product.ProductWebsiteUrl" target="_blank" class="text-sm text-primary hover:text-accent transition-colors break-all">
+                                                                @product.ProductWebsiteUrl
+                                                            </a>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div class="flex items-center space-x-2 ml-4">
+                                                    <a href="@product.ProductWebsiteUrl" target="_blank" class="p-2 text-gray-400 hover:text-primary transition-colors" title="View Product">
+                                                        <span class="material-symbols-outlined">open_in_new</span>
+                                                    </a>
+                                                    <button class="p-2 text-gray-400 hover:text-accent transition-colors" title="Track Prices" onclick="showPriceHistory(@product.OwnProductId)">
+                                                        <span class="material-symbols-outlined">trending_up</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-12">
+                                <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                                    <span class="material-symbols-outlined text-4xl text-gray-400">inventory_2</span>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Products Yet</h3>
+                                <p class="text-gray-600 mb-8 max-w-md mx-auto">Start by discovering products from competitor websites or add them manually to begin tracking prices.</p>
+                                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                                    <a href="@Url.Action("Index", "ProductDiscovery")" class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors">
+                                        <span class="material-symbols-outlined text-lg mr-2">search</span>
+                                        Discover Products
+                                    </a>
+                                    <a href="@Url.Action("ManualEntry", "ProductDiscovery")" class="inline-flex items-center px-6 py-3 text-base font-medium text-secondary-accent bg-secondary-accent/10 rounded-lg hover:bg-secondary-accent/20 transition-colors">
+                                        <span class="material-symbols-outlined text-lg mr-2">edit</span>
+                                        Add Manually
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Price History Popup -->
+    <div id="priceHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-96 overflow-hidden">
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Price History</h3>
+                    <button onclick="hidePriceHistory()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div id="priceHistoryContent" class="space-y-3 max-h-64 overflow-y-auto">
+                        <!-- Price history will be loaded here -->
+                    </div>
+                    <div id="noPriceHistory" class="text-center py-8 text-gray-500 hidden">
+                        <span class="material-symbols-outlined text-4xl mb-2">trending_up</span>
+                        <p>No price history available</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPriceHistory(productId) {
+            const modal = document.getElementById('priceHistoryModal');
+            const content = document.getElementById('priceHistoryContent');
+            const noHistory = document.getElementById('noPriceHistory');
+            
+            modal.classList.remove('hidden');
+            content.innerHTML = '<div class="text-center py-4"><span class="material-symbols-outlined animate-spin">refresh</span><p class="mt-2">Loading price history...</p></div>';
+            noHistory.classList.add('hidden');
+            
+            // Fetch price history
+            fetch(`/ProductDiscovery/GetPriceHistory?productId=${productId}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Price history data:', data);
+                    if (data && data.length > 0) {
+                        content.innerHTML = data.map(price => `
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <span class="material-symbols-outlined text-green-500">attach_money</span>
+                                    <div>
+                                        <p class="font-medium text-gray-900">${price.priceValue}</p>
+                                        <p class="text-sm text-gray-500">${new Date(price.priceDate).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                                <span class="text-sm text-gray-400">${price.currency || 'USD'}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        console.log('No price history data available');
+                        content.innerHTML = '';
+                        noHistory.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading price history:', error);
+                    content.innerHTML = '<div class="text-center py-4 text-red-500"><p>Error loading price history</p></div>';
+                });
+        }
+        
+        function hidePriceHistory() {
+            document.getElementById('priceHistoryModal').classList.add('hidden');
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('priceHistoryModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hidePriceHistory();
+            }
+        });
+    </script>
+</body>
+</html>

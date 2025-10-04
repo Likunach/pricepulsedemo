@@ -1,0 +1,338 @@
+@model PricePulse.ViewModels.ManualProductEntryViewModel
+@{
+    ViewData["Title"] = "PricePulse - Manual Entry";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5d288a",
+                        "accent": "#f94037",
+                        "secondary-accent": "#0cb8ca",
+                        "background-light": "#eff9f2"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'inner-glow': 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
+                        'accent-glow': '0 0px 20px -5px rgba(249, 64, 55, 0.6)',
+                        'primary-focus-ring': '0 0 0 3px rgba(93, 40, 138, 0.3)',
+                        'accent-focus-ring': '0 0 0 3px rgba(249, 64, 55, 0.4)',
+                        'secondary-focus-ring': '0 0 0 3px rgba(12, 184, 202, 0.4)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        .form-input {
+            width: 100%;
+            background-color: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            ring: 0;
+            outline: none;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-gray-800">
+    <div class="flex flex-col min-h-screen">
+        <header class="sticky top-0 z-50 bg-background-light/90 backdrop-blur-md">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20 border-b border-gray-200">
+                    <div class="flex items-center space-x-3">
+                <img src="/images/logo.png" alt="PricePulse logo" class="h-8 w-8" />
+                        <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                    </div>
+                    <nav class="hidden md:flex items-center space-x-8">
+                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Dashboard</a>
+                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("MyProducts", "ProductDiscovery")">My Products</a>
+                        <a class="text-sm font-medium text-primary border-b-2 border-primary" href="@Url.Action("ManualEntry", "ProductDiscovery")">Manual Entry</a>
+                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Discover</a>
+                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Info", "Account")">
+                            <span class="material-symbols-outlined">person</span>
+                            Account
+                        </a>
+                    </nav>
+                    <div class="flex items-center space-x-4">
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="flex-grow">
+            <div class="relative py-20 sm:py-24">
+                <div aria-hidden="true" class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
+                    <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-accent to-secondary-accent opacity-30" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
+                </div>
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="text-center mb-16">
+                            <h1 class="text-5xl sm:text-6xl font-extrabold tracking-tighter text-gray-900">Manual Entry</h1>
+                            <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">Quickly add your products and competitor data. Let's get tracking!</p>
+                        </div>
+                        
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                                @TempData["Error"]
+                            </div>
+                        }
+                        
+                        @if (TempData["Message"] != null)
+                        {
+                            <div class="mb-8 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                                @TempData["Message"]
+                            </div>
+                        }
+                        
+                        <div class="bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-200/50 overflow-hidden">
+                            <div class="p-8 sm:p-12">
+                                <form action="@Url.Action("ManualEntry", "ProductDiscovery")" class="space-y-12" method="POST">
+                                    <div>
+                                        <h2 class="text-2xl font-bold leading-7 text-primary flex items-center space-x-3 mb-8">
+                                            <span class="material-symbols-outlined text-3xl">inventory_2</span>
+                                            <span>Your Product Details</span>
+                                        </h2>
+                                        <div class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6">
+                                            <div class="sm:col-span-4">
+                                                <label class="form-label" for="product-name">Product Name</label>
+                                                <input autocomplete="off" class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" 
+                                                       id="product-name" name="OwnProductName" placeholder="e.g., QuantumScribe AI Writer" type="text" 
+                                                       value="@Model.OwnProductName" required />
+                                                <span asp-validation-for="OwnProductName" class="text-red-500 text-sm"></span>
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <label class="form-label" for="product-sku">SKU / ID</label>
+                                                <input autocomplete="off" class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" 
+                                                       id="product-sku" name="ProductSku" placeholder="QS-AIW-001" type="text" />
+                                            </div>
+                                            <div class="col-span-full">
+                                                <label class="form-label" for="product-url">Your Product URL</label>
+                                                <div class="relative">
+                                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                        <span class="material-symbols-outlined text-primary">link</span>
+                                                    </div>
+                                                    <input class="block w-full px-4 py-3 pl-10 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" 
+                                                           id="product-url" name="OwnProductUrl" placeholder="https://yourstore.com/product/quantuscribe" 
+                                                           type="url" value="@Model.OwnProductUrl" required />
+                                                </div>
+                                                <span asp-validation-for="OwnProductUrl" class="text-red-500 text-sm"></span>
+                                            </div>
+                                            <div class="sm:col-span-2">
+                                                <label class="form-label" for="current-price">Current Price</label>
+                                                <div class="relative">
+                                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                        <span class="text-primary font-bold sm:text-sm" id="currency-symbol">$</span>
+                                                    </div>
+                                                    <input class="block w-full px-4 py-3 pl-7 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" 
+                                                           id="current-price" name="CurrentPrice" placeholder="99.99" type="number" 
+                                                           step="0.01" min="0" value="@Model.CurrentPrice" />
+                                                </div>
+                                            </div>
+                                            <div class="sm:col-span-1">
+                                                <label class="form-label" for="currency">Currency</label>
+                                                <select class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" 
+                                                       id="currency" name="Currency" onchange="updateCurrencySymbol()">
+                                                    @foreach (var currency in Model.AvailableCurrencies)
+                                                    {
+                                                        <option value="@currency" selected="@(currency == Model.Currency)">@currency</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h2 class="text-2xl font-bold leading-7 text-secondary-accent flex items-center space-x-3 mb-8">
+                                            <span class="material-symbols-outlined text-3xl">radar</span>
+                                            <span>Competitor URLs</span>
+                                        </h2>
+                                        <div class="space-y-6" id="competitor-list">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-grow">
+                                                    <label class="form-label sr-only" for="competitor-url-1">Competitor Product URL #1</label>
+                                                    <div class="relative">
+                                                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                            <span class="material-symbols-outlined text-secondary-accent">public</span>
+                                                        </div>
+                                                        <input class="block w-full px-4 py-3 pl-10 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-secondary-accent focus:border-transparent transition" 
+                                                               id="competitor-url-1" name="CompetitorProductUrl" placeholder="https://competitor.com/product/similar-item" 
+                                                               type="url" value="@Model.CompetitorProductUrl" required />
+                                                    </div>
+                                                    <span asp-validation-for="CompetitorProductUrl" class="text-red-500 text-sm"></span>
+                                                </div>
+                                                <button class="p-2 text-gray-400 hover:text-accent transition-colors" type="button" onclick="removeCompetitor(this)">
+                                                    <span class="material-symbols-outlined">delete</span>
+                                                </button>
+                                            </div>
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-grow">
+                                                    <label class="form-label sr-only" for="competitor-url-2">Competitor Product URL #2</label>
+                                                    <div class="relative">
+                                                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                                            <span class="material-symbols-outlined text-secondary-accent">public</span>
+                                                        </div>
+                                                        <input class="block w-full px-4 py-3 pl-10 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-secondary-accent focus:border-transparent transition" 
+                                                               id="competitor-url-2" name="CompetitorProductUrl2" placeholder="https://another-competitor.com/product/alternative" 
+                                                               type="url" />
+                                                    </div>
+                                                </div>
+                                                <button class="p-2 text-gray-400 hover:text-accent transition-colors" type="button" onclick="removeCompetitor(this)">
+                                                    <span class="material-symbols-outlined">delete</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mt-6">
+                                            <button class="flex items-center space-x-2 text-sm font-semibold text-secondary-accent hover:text-secondary-accent/80 transition-colors" 
+                                                    type="button" onclick="addCompetitor()">
+                                                <span class="material-symbols-outlined">add_circle</span>
+                                                <span>Add another competitor</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-12 flex items-center justify-end gap-x-6">
+                                        <a href="@Url.Action("Index", "ProductDiscovery")" class="text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-100 px-4 py-2 rounded-lg transition">
+                                            Cancel
+                                        </a>
+                                        <button class="group relative inline-flex items-center justify-center px-10 py-4 overflow-hidden font-bold text-white transition-all duration-300 rounded-full bg-accent hover:bg-accent/90 shadow-accent-glow focus:outline-none focus:ring-4 focus:ring-accent/50" type="submit">
+                                            <span class="relative flex items-center space-x-3">
+                                                <span class="material-symbols-outlined text-2xl">save</span>
+                                                <span class="text-lg">Save to Database</span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let competitorCount = 2;
+        
+        // Currency symbols mapping
+        const currencySymbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'CAD': 'C$',
+            'AUD': 'A$',
+            'JPY': '¥',
+            'CHF': 'CHF',
+            'CNY': '¥',
+            'INR': '₹',
+            'BRL': 'R$',
+            'MXN': '$',
+            'SGD': 'S$',
+            'HKD': 'HK$',
+            'NOK': 'kr',
+            'SEK': 'kr',
+            'DKK': 'kr',
+            'PLN': 'zł',
+            'CZK': 'Kč',
+            'HUF': 'Ft',
+            'RUB': '₽'
+        };
+        
+        function updateCurrencySymbol() {
+            const currencySelect = document.getElementById('currency');
+            const currencySymbol = document.getElementById('currency-symbol');
+            const selectedCurrency = currencySelect.value;
+            currencySymbol.textContent = currencySymbols[selectedCurrency] || selectedCurrency;
+        }
+        
+        function addCompetitor() {
+            const competitorList = document.getElementById('competitor-list');
+            const newCompetitor = document.createElement('div');
+            newCompetitor.className = 'flex items-center space-x-4';
+            newCompetitor.innerHTML = `
+                <div class="flex-grow">
+                    <label class="form-label sr-only" for="competitor-url-${competitorCount + 1}">Competitor Product URL #${competitorCount + 1}</label>
+                    <div class="relative">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span class="material-symbols-outlined text-secondary-accent">public</span>
+                        </div>
+                        <input class="form-input pl-10 border-gray-300 focus:border-secondary-accent focus:shadow-secondary-focus-ring" 
+                               id="competitor-url-${competitorCount + 1}" name="CompetitorProductUrl${competitorCount + 1}" 
+                               placeholder="https://competitor.com/product/similar-item" type="url" />
+                    </div>
+                </div>
+                <button class="p-2 text-gray-400 hover:text-accent transition-colors" type="button" onclick="removeCompetitor(this)">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            `;
+            competitorList.appendChild(newCompetitor);
+            competitorCount++;
+        }
+        
+        function removeCompetitor(button) {
+            button.parentElement.remove();
+        }
+        
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input[required]');
+            
+            // Initialize currency symbol on page load
+            updateCurrencySymbol();
+            
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() === '') {
+                        this.classList.add('border-red-500');
+                        this.classList.remove('border-gray-300');
+                    } else {
+                        this.classList.remove('border-red-500');
+                        this.classList.add('border-gray-300');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

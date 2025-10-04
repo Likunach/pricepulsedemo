@@ -1,0 +1,220 @@
+@model PricePulse.ViewModels.ProductDiscoveryViewModel
+@{
+    ViewData["Title"] = "PricePulse - AI Product Discovery";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5d288a",
+                        "accent-1": "#f94037",
+                        "accent-2": "#0cb8ca",
+                        "background-light": "#eff9f2",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    keyframes: {
+                        "ai-pulse": {
+                            "0%, 100%": { opacity: 1, transform: "scale(1)" },
+                            "50%": { opacity: 0.8, transform: "scale(1.05)" }
+                        }
+                    },
+                    animation: {
+                        "ai-pulse": "ai-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-gray-900">
+    <div class="flex flex-col min-h-screen">
+        <header class="absolute top-0 left-0 right-0 z-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-24">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-primary rounded-full">
+                            <img src="/images/logo.png" alt="PricePulse logo" class="h-8 w-8" />
+                        </div>
+                        <h1 class="text-3xl font-bold text-gray-900">PricePulse</h1>
+                    </div>
+                    <nav class="hidden md:flex items-center space-x-10">
+                        <a class="text-base font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Dashboard</a>
+                        <a class="text-base font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("MyProducts", "ProductDiscovery")">My Products</a>
+                    </nav>
+                    <div class="flex items-center space-x-4">
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <a class="hidden sm:inline-block text-base font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("Logout", "Account")">Logout</a>
+                            <a class="bg-primary text-white px-6 py-3 rounded-full text-base font-semibold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-lg shadow-primary/30" href="@Url.Action("Index", "ProductDiscovery")">Dashboard</a>
+                        }
+                        else
+                        {
+                            <a class="hidden sm:inline-block text-base font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("Login", "Account")">Login</a>
+                            <a class="bg-primary text-white px-6 py-3 rounded-full text-base font-semibold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-lg shadow-primary/30" href="@Url.Action("Create", "Account")">Get Started Free</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="flex-grow flex items-center justify-center">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="max-w-2xl mx-auto text-center">
+                    <div class="inline-flex items-center space-x-3 bg-primary/10 text-primary font-semibold px-5 py-2 rounded-full text-sm mb-6 animate-ai-pulse">
+                        <span class="material-symbols-outlined text-lg">auto_awesome</span>
+                        <span>High-Tech AI Functionality</span>
+                    </div>
+                    <h2 class="text-5xl sm:text-6xl font-extrabold tracking-tighter text-gray-900 leading-tight">
+                        Uncover Products, Instantly.
+                    </h2>
+                    <p class="mt-6 max-w-xl mx-auto text-lg text-gray-600">
+                        Paste any website URL. Our AI scans, identifies, and lists all products for you. It's product discovery, supercharged.
+                    </p>
+                    
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                            @TempData["Error"]
+                        </div>
+                    }
+                    
+                    @if (TempData["Message"] != null)
+                    {
+                        <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                            @TempData["Message"]
+                        </div>
+                    }
+                    
+                    <div class="mt-12">
+                        <form action="@Url.Action("DiscoverProducts", "ProductDiscovery")" class="space-y-4" method="POST">
+                            <div class="relative group">
+                                <span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-accent-1 text-2xl">link</span>
+                                <input class="w-full pl-16 pr-6 py-5 bg-white border-2 border-transparent rounded-lg text-lg focus:ring-4 focus:ring-accent-1/50 focus:border-accent-1 transition-all shadow-md hover:shadow-lg" 
+                                       id="website-url" name="WebsiteUrl" placeholder="Enter website URL (e.g., example.com)" type="url" value="@Model.WebsiteUrl" required/>
+                            </div>
+                            <div class="relative group">
+                                <span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-accent-2 text-2xl">tune</span>
+                                <input class="w-full pl-16 pr-6 py-5 bg-white border-2 border-transparent rounded-lg text-lg focus:ring-4 focus:ring-accent-2/50 focus:border-accent-2 transition-all shadow-md hover:shadow-lg" 
+                                       id="specifications" name="CompanyLocation" placeholder="Optional Specifications (e.g., color, size)" type="text" value="@Model.CompanyLocation"/>
+                            </div>
+                            <div>
+                                <button class="w-full flex items-center justify-center bg-primary text-white px-8 py-5 rounded-lg text-xl font-bold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-xl shadow-primary/30" type="submit" id="discoverBtn">
+                                    <span class="material-symbols-outlined mr-3 text-2xl">psychology</span>
+                                    <span id="btnText">Let's Go</span>
+                                    <span id="loadingSpinner" style="display: none;">
+                                        <span class="material-symbols-outlined mr-3 text-2xl animate-spin">autorenew</span>
+                                        Analyzing...
+                                    </span>
+                                </button>
+                            </div>
+                        </form>
+                        <div class="mt-8 text-center">
+                            <div class="relative flex items-center justify-center my-4">
+                                <div aria-hidden="true" class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-300"></div>
+                                </div>
+                                <div class="relative bg-background-light px-3">
+                                    <span class="text-sm text-gray-500">OR</span>
+                                </div>
+                            </div>
+                            <a class="text-primary font-semibold hover:underline decoration-wavy underline-offset-4 decoration-accent-1 transition group" href="@Url.Action("ManualEntry", "ProductDiscovery")">
+                                Enter Products Manually
+                                <span aria-hidden="true" class="inline-block transition-transform group-hover:translate-x-1"> →</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- AI Processing Overlay -->
+    <div class="fixed inset-0 bg-background-light/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center text-center p-8 hidden" id="processingOverlay">
+        <div class="flex items-center space-x-4 text-3xl font-bold text-primary">
+            <div class="relative h-12 w-12">
+                <div class="absolute h-full w-full rounded-full bg-accent-1 opacity-75 animate-ping"></div>
+                <div class="relative flex h-full w-full items-center justify-center rounded-full bg-accent-1">
+                    <span class="material-symbols-outlined text-white text-3xl">hub</span>
+                </div>
+            </div>
+            <span>AI Processing...</span>
+        </div>
+        <p class="mt-6 text-lg text-gray-600">Our digital brain is hard at work. This should just take a moment.</p>
+        <div class="w-full max-w-lg bg-gray-200 rounded-full h-3 mt-8 overflow-hidden">
+            <div class="bg-gradient-to-r from-accent-1 to-accent-2 h-3 rounded-full animate-pulse" style="width: 65%"></div>
+        </div>
+        <div class="mt-3 text-sm font-medium text-gray-500">Finding Magic... 65%</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const discoverBtn = document.getElementById('discoverBtn');
+            const btnText = document.getElementById('btnText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const processingOverlay = document.getElementById('processingOverlay');
+            
+            form.addEventListener('submit', function(e) {
+                console.log('=== FORM SUBMISSION STARTED ===');
+                
+                // Show loading state
+                discoverBtn.disabled = true;
+                btnText.style.display = 'none';
+                loadingSpinner.style.display = 'inline';
+                
+                // Show processing overlay
+                processingOverlay.classList.remove('hidden');
+                
+                // Simulate progress
+                let progress = 0;
+                const progressBar = processingOverlay.querySelector('.bg-gradient-to-r');
+                const progressText = processingOverlay.querySelector('.text-gray-500');
+                
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 95) progress = 95;
+                    
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = `Finding Magic... ${Math.round(progress)}%`;
+                }, 500);
+                
+                // Clear interval after 10 seconds (form should have submitted by then)
+                setTimeout(() => {
+                    clearInterval(progressInterval);
+                }, 10000);
+            });
+        });
+    </script>
+</body>
+</html>

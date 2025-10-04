@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PricePulse</title>
+    <link href="~/css/site.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="navbar-brand">
+                    <img src="~/images/logo.png" alt="PricePulse" class="logo" />
+                </div>
+                <div class="navbar-nav">
+                    <a class="nav-link" href="#top">About</a>
+                    <a class="nav-link" href="#features">Features</a>
+                    @if (User?.Identity?.IsAuthenticated ?? false)
+                    {
+                        <a href="/ProductDiscovery" class="nav-link">Product Discovery</a>
+                        <a href="/Competitor" class="nav-link">Competitor Discovery</a>
+                        <a href="/Account/Info" class="nav-link">Account</a>
+                        <span class="nav-link disabled">@("Logged in as " + (User.Identity?.Name ?? User.FindFirst("email")?.Value ?? "User"))</span>
+                        <form method="post" action="/Account/Logout" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="nav-link" style="background:none;border:none;padding:0;cursor:pointer;">Logout</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login" class="nav-link">Login</a>
+                        <a href="/Account/Create" class="btn btn-primary">Create Account</a>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 PricePulse. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

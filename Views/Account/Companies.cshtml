@@ -1,0 +1,538 @@
+@{
+    ViewData["Title"] = "PricePulse - Company Management";
+    Layout = null;
+}
+
+@{
+    var companies = ViewBag.Companies as IEnumerable<PricePulse.Models.CompanyProfile> ?? Enumerable.Empty<PricePulse.Models.CompanyProfile>();
+    var editCompany = ViewBag.EditCompany as PricePulse.Models.CompanyProfile;
+    var selectedCompany = editCompany ?? companies.FirstOrDefault();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#5d288a",
+                "accent": "#f94037",
+                "secondary-accent": "#0cb8ca",
+                "background": "#eff9f2",
+                "card": "#ffffff",
+                "text-primary": "#1a1a1a",
+                "text-secondary": "#4d4d4d",
+                "text-muted": "#808080",
+              },
+              fontFamily: {
+                "sans": ["Inter", "sans-serif"]
+              },
+              borderRadius: {
+                "xl": "1rem",
+              },
+              boxShadow: {
+                'subtle': '0 4px 12px 0 rgba(0, 0, 0, 0.05)',
+                'vibrant': '0 8px 25px -5px rgba(93, 40, 138, 0.2), 0 5px 15px -5px rgba(93, 40, 138, 0.1)',
+              }
+            },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+        .material-symbols-outlined.filled {
+          font-variation-settings:
+          'FILL' 1,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background font-sans text-text-primary">
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-card flex-shrink-0 border-r border-gray-200/60 hidden lg:flex flex-col">
+            <div class="h-20 flex items-center px-6">
+                <svg class="h-9 w-9 text-primary" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7V17L12 22L22 17V7L12 2ZM12 4.44L19.36 8.5L12 12.55L4.64 8.5L12 4.44ZM4 9.87L11 14.17V19.74L4 15.43V9.87ZM13 19.74V14.17L20 9.87V15.43L13 19.74Z"></path>
+                </svg>
+                <h1 class="ml-3 text-2xl font-bold text-primary">PricePulse</h1>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a class="flex items-center px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-primary transition-all" href="@Url.Action("Index", "Home")">
+                    <span class="material-symbols-outlined mr-3">dashboard</span>
+                    Dashboard
+                </a>
+                <a class="flex items-center px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-primary transition-all" href="@Url.Action("Index", "ProductDiscovery")">
+                    <span class="material-symbols-outlined mr-3">monitoring</span>
+                    Products
+                </a>
+                <a class="flex items-center px-4 py-2.5 text-sm font-bold bg-primary/10 text-primary rounded-lg transition-all" href="@Url.Action("Companies", "Account")">
+                    <span class="material-symbols-outlined filled mr-3">business_center</span>
+                    Companies
+                </a>
+                <a class="flex items-center px-4 py-2.5 text-sm font-medium text-text-secondary hover:text-primary transition-all" href="@Url.Action("Info", "Account")">
+                    <span class="material-symbols-outlined mr-3">person</span>
+                    Account
+                </a>
+            </nav>
+        </aside>
+        
+        <div class="flex-1 flex flex-col">
+            <header class="h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 bg-background/80 backdrop-blur-sm sticky top-0 z-10 border-b border-gray-200/60">
+                <div class="flex items-center">
+                    <button class="lg:hidden mr-4 text-text-muted">
+                        <span class="material-symbols-outlined text-3xl">menu</span>
+                    </button>
+                    <h1 class="text-2xl font-bold text-text-primary">Companies Management</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-accent text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:opacity-90 transition-all transform hover:scale-105 shadow-md shadow-accent/30 flex items-center" onclick="console.log('Add Company button clicked'); showAddCompanyForm();">
+                        <span class="material-symbols-outlined mr-2">add_business</span>
+                        Add Company
+                    </button>
+                </div>
+            </header>
+            
+            <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                @if (TempData["Error"] != null)
+                {
+                    <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="material-symbols-outlined mr-2">error</span>
+                            @TempData["Error"]
+                        </div>
+                    </div>
+                }
+                @if (TempData["Success"] != null)
+                {
+                    <div class="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="material-symbols-outlined mr-2">check_circle</span>
+                            @TempData["Success"]
+                        </div>
+                    </div>
+                }
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <div class="xl:col-span-1 space-y-4">
+                        @foreach (var company in companies)
+                        {
+                            <div class="bg-card p-5 rounded-xl border-l-4 @(company == selectedCompany ? "border-primary ring-2 ring-primary/50 shadow-vibrant" : "border-secondary-accent cursor-pointer shadow-subtle hover:shadow-vibrant transition-all duration-300")" onclick="selectCompany(@company.CompanyProfileId)">
+                                @if (company == selectedCompany)
+                                {
+                                    <div class="absolute top-3 right-3">
+                                        <span class="inline-flex items-center p-1.5 bg-primary text-white rounded-full">
+                                            <span class="material-symbols-outlined filled text-base">star</span>
+                                        </span>
+                                    </div>
+                                }
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <p class="text-lg font-bold text-text-primary">@company.CompanyName</p>
+                                        <a class="text-sm @(company == selectedCompany ? "text-primary" : "text-secondary-accent") hover:underline" href="@company.CompanyWebsite" target="_blank">@company.CompanyWebsite</a>
+                                    </div>
+                                </div>
+                                <p class="mt-3 text-sm text-text-secondary">@(company.CompanyDescription ?? "No description available")</p>
+                            </div>
+                        }
+                        
+                        @if (!companies.Any())
+                        {
+                            <div class="bg-card p-8 rounded-xl border-2 border-dashed border-gray-300 text-center">
+                                <span class="material-symbols-outlined text-4xl text-gray-400 mb-4">business_center</span>
+                                <p class="text-text-muted">No companies yet</p>
+                                <p class="text-sm text-text-muted mt-2">Add your first company to get started</p>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="xl:col-span-2 bg-card p-6 sm:p-8 rounded-xl shadow-subtle">
+                        @if (selectedCompany != null)
+                        {
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-gray-200/80">
+                                <div>
+                                    <h2 class="text-3xl font-bold text-primary">@selectedCompany.CompanyName</h2>
+                                    <p class="text-sm text-text-muted mt-1">Manage company information, addresses, and contacts.</p>
+                                </div>
+                                <button class="mt-4 sm:mt-0 bg-primary text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-md shadow-primary/30 flex items-center" onclick="editCompany(@selectedCompany.CompanyProfileId)">
+                                    <span class="material-symbols-outlined mr-2">edit</span>
+                                    Edit Company
+                                </button>
+                            </div>
+                            <div class="py-6 space-y-6">
+                                <h3 class="text-xl font-bold text-text-primary">Company Information</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                    <div>
+                                        <label class="text-sm font-medium text-text-muted">Company Name</label>
+                                        <p class="mt-1 font-semibold text-text-primary text-lg">@selectedCompany.CompanyName</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-text-muted">Website</label>
+                                        <p class="mt-1 font-semibold text-primary text-lg">@selectedCompany.CompanyWebsite</p>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="text-sm font-medium text-text-muted">Description</label>
+                                        <p class="mt-1 text-text-secondary leading-relaxed">@(selectedCompany.CompanyDescription ?? "No description available")</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-text-muted">Industry</label>
+                                        <p class="mt-1 font-semibold text-text-primary">@(selectedCompany.Industry ?? "Not specified")</p>
+                                    </div>
+                                    <div>
+                                        <label class="text-sm font-medium text-text-muted">Status</label>
+                                        <p class="mt-1 font-semibold text-primary">Selected</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-6 border-t border-gray-200/80">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-xl font-bold text-text-primary">Address Management</h3>
+                                    <button class="text-accent font-semibold text-sm flex items-center hover:opacity-80 transition-opacity" onclick="addAddress()">
+                                        <span class="material-symbols-outlined mr-1 text-base">add_location_alt</span>
+                                        @(selectedCompany.Address != null ? "Update Address" : "Add Address")
+                                    </button>
+                                </div>
+                                <div class="mt-6 space-y-4">
+                                    @if (selectedCompany.Address != null)
+                                    {
+                                        <div class="p-4 rounded-lg bg-background border border-gray-200/80 flex items-center justify-between">
+                                            <div>
+                                                <p class="font-semibold text-text-primary">Headquarters</p>
+                                                <p class="text-sm text-text-secondary">@selectedCompany.Address.AddressLine1, @selectedCompany.Address.City, @selectedCompany.Address.PostalCode, @selectedCompany.Address.Country</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="p-8 rounded-lg border-2 border-dashed border-gray-300 text-center">
+                                            <span class="material-symbols-outlined text-4xl text-gray-400 mb-4">location_off</span>
+                                            <p class="text-text-muted">No address added yet</p>
+                                            <p class="text-sm text-text-muted mt-2">Add an address to complete your company profile</p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-12">
+                                <span class="material-symbols-outlined text-6xl text-gray-400 mb-4">business_center</span>
+                                <h2 class="text-2xl font-bold text-text-primary mb-2">No Company Selected</h2>
+                                <p class="text-text-muted">Select a company from the list or add a new one to get started.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Company Modal -->
+    <div id="companyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-primary" id="modalTitle">Add Company</h3>
+                <button onclick="hideAddCompanyForm()" class="text-text-muted hover:text-accent">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+            
+            <form method="post" action="@Url.Action("AddCompany", "Account")" class="space-y-6">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="companyProfileId" id="companyProfileId" value="@(ViewBag.IsEditMode == true ? editCompany?.CompanyProfileId : "")" />
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Company Name</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="companyName" value="@(ViewBag.IsEditMode == true ? editCompany?.CompanyName : "")" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Industry</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="industry" value="@(ViewBag.IsEditMode == true ? editCompany?.Industry : "")" />
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-2">Website</label>
+                    <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="website" type="url" value="@(ViewBag.IsEditMode == true ? editCompany?.CompanyWebsite : "")" />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-2">Description</label>
+                    <textarea class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="description" rows="3">@(ViewBag.IsEditMode == true ? editCompany?.CompanyDescription : "")</textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Address</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="address1" value="@(ViewBag.IsEditMode == true ? editCompany?.Address?.AddressLine1 : "")" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">City</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="city" value="@(ViewBag.IsEditMode == true ? editCompany?.Address?.City : "")" />
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">State</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="state" value="@(ViewBag.IsEditMode == true ? editCompany?.Address?.State : "")" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Postal Code</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="postalCode" value="@(ViewBag.IsEditMode == true ? editCompany?.Address?.PostalCode : "")" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Country</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" name="country" value="@(ViewBag.IsEditMode == true ? editCompany?.Address?.Country : "")" />
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-6">
+                    <button type="button" onclick="hideAddCompanyForm()" class="px-6 py-3 rounded-lg text-sm font-semibold text-text-secondary bg-gray-200 hover:bg-gray-300 transition-colors">Cancel</button>
+                    <button type="submit" class="bg-accent text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-accent/90 transition-transform transform hover:scale-105 shadow-lg shadow-accent/30">@(ViewBag.IsEditMode == true ? "Save Changes" : "Add Company")</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Address Modal -->
+    <div id="addressModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-primary" id="addressModalTitle">Add Address</h3>
+                <button onclick="hideAddressModal()" class="text-text-muted hover:text-accent">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+            
+            <form id="addressForm" class="space-y-6">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="addressCompanyId" value="@(selectedCompany?.CompanyProfileId ?? 0)" />
+                
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-2">Address Line 1 *</label>
+                    <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" id="addressLine1" required />
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-text-secondary mb-2">Address Line 2</label>
+                    <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" id="addressLine2" />
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">City *</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" id="addressCity" required />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">State/Province</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" id="addressState" />
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Postal Code</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" id="addressPostalCode" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-secondary mb-2">Country</label>
+                        <input class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" id="addressCountry" />
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-6">
+                    <button type="button" onclick="hideAddressModal()" class="px-6 py-3 rounded-lg text-sm font-semibold text-text-secondary bg-gray-200 hover:bg-gray-300 transition-colors">Cancel</button>
+                    <button type="button" onclick="saveAddress()" class="bg-accent text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-accent/90 transition-transform transform hover:scale-105 shadow-lg shadow-accent/30">Add Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Auto-show modal if in edit mode
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (ViewBag.IsEditMode == true)
+            {
+                <text>
+                document.getElementById('companyModal').classList.remove('hidden');
+                document.getElementById('modalTitle').textContent = 'Edit Company';
+                </text>
+            }
+        });
+
+        function showAddCompanyForm() {
+            console.log('showAddCompanyForm called');
+            
+            try {
+                // Clear all form fields with null checks
+                const companyProfileId = document.getElementById('companyProfileId');
+                if (companyProfileId) companyProfileId.value = '';
+                
+                const companyName = document.querySelector('input[name="companyName"]');
+                if (companyName) companyName.value = '';
+                
+                const industry = document.querySelector('input[name="industry"]');
+                if (industry) industry.value = '';
+                
+                const website = document.querySelector('input[name="website"]');
+                if (website) website.value = '';
+                
+                const description = document.querySelector('textarea[name="description"]');
+                if (description) description.value = '';
+                
+                const address1 = document.querySelector('input[name="address1"]');
+                if (address1) address1.value = '';
+                
+                const address2 = document.querySelector('input[name="address2"]');
+                if (address2) address2.value = '';
+                
+                const city = document.querySelector('input[name="city"]');
+                if (city) city.value = '';
+                
+                const state = document.querySelector('input[name="state"]');
+                if (state) state.value = '';
+                
+                const postalCode = document.querySelector('input[name="postalCode"]');
+                if (postalCode) postalCode.value = '';
+                
+                const country = document.querySelector('input[name="country"]');
+                if (country) country.value = '';
+                
+                // Show modal with add title
+                const modal = document.getElementById('companyModal');
+                const title = document.getElementById('modalTitle');
+                
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    console.log('Modal shown');
+                } else {
+                    console.error('Modal not found');
+                }
+                
+                if (title) {
+                    title.textContent = 'Add Company';
+                    console.log('Title updated');
+                } else {
+                    console.error('Title element not found');
+                }
+            } catch (error) {
+                console.error('Error in showAddCompanyForm:', error);
+                alert('Error opening company form: ' + error.message);
+            }
+        }
+        
+        function hideAddCompanyForm() {
+            document.getElementById('companyModal').classList.add('hidden');
+        }
+        
+        function selectCompany(companyId) {
+            window.location.href = '@Url.Action("Companies", "Account")?id=' + companyId;
+        }
+        
+        function editCompany(companyId) {
+            // Redirect to the same page with the company ID to load edit data
+            window.location.href = '@Url.Action("Companies", "Account")?id=' + companyId + '&edit=true';
+        }
+        
+        function addAddress() {
+            const modal = document.getElementById('addressModal');
+            const title = document.getElementById('addressModalTitle');
+            const saveButton = document.querySelector('[onclick="saveAddress()"]');
+            
+            // Check if company already has an address
+            const hasAddress = @(selectedCompany?.Address != null ? "true" : "false");
+            
+            if (hasAddress) {
+                title.textContent = 'Update Address';
+                saveButton.textContent = 'Update Address';
+            } else {
+                title.textContent = 'Add Address';
+                saveButton.textContent = 'Add Address';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function hideAddressModal() {
+            document.getElementById('addressModal').classList.add('hidden');
+            // Clear form
+            document.getElementById('addressForm').reset();
+        }
+        
+        function saveAddress() {
+            const companyId = document.getElementById('addressCompanyId').value;
+            const address1 = document.getElementById('addressLine1').value;
+            const address2 = document.getElementById('addressLine2').value;
+            const city = document.getElementById('addressCity').value;
+            const state = document.getElementById('addressState').value;
+            const postalCode = document.getElementById('addressPostalCode').value;
+            const country = document.getElementById('addressCountry').value;
+            
+            if (!address1 || !city) {
+                alert('Please fill in the required fields (Address Line 1 and City).');
+                return;
+            }
+            
+            // Show loading state
+            const saveButton = document.querySelector('[onclick="saveAddress()"]');
+            const originalText = saveButton.textContent;
+            saveButton.textContent = 'Adding...';
+            saveButton.disabled = true;
+            
+            // Send AJAX request
+            const formData = new FormData();
+            formData.append('companyProfileId', companyId);
+            formData.append('address1', address1);
+            formData.append('address2', address2 || '');
+            formData.append('city', city);
+            formData.append('state', state || '');
+            formData.append('postalCode', postalCode || '');
+            formData.append('country', country || '');
+            formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
+            
+            fetch('/Account/AddAddress', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Address added successfully!');
+                    hideAddressModal();
+                    location.reload(); // Refresh to show the new address
+                } else {
+                    alert(data.message || 'Error adding address. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding address. Please try again.');
+            })
+            .finally(() => {
+                // Reset button
+                saveButton.textContent = originalText;
+                saveButton.disabled = false;
+            });
+        }
+        
+    </script>
+</body>
+</html>

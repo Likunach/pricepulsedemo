@@ -1,0 +1,165 @@
+@{
+    ViewData["Title"] = "PricePulse - Client-Side Validation";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "brand-purple": "#5d288a",
+                        "brand-red": "#f94037",
+                        "brand-cyan": "#0cb8ca",
+                        "background-light-green": "#eff9f2",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.375rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'brand-glow-cyan': '0 0 8px 2px rgba(12, 184, 202, 0.4)',
+                        'brand-glow-red': '0 0 8px 2px rgba(249, 64, 55, 0.4)',
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        .form-input.has-error {
+            border-color: #f94037;
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+            box-shadow: 0 0 0 2px rgba(249, 64, 55, 0.2);
+        }
+        .form-input.is-valid {
+            border-color: #0cb8ca;
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+            box-shadow: 0 0 0 2px rgba(12, 184, 202, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background-light-green font-display text-gray-800">
+    <div class="flex flex-col min-h-screen">
+        <header class="sticky top-0 z-10 bg-background-light-green/90 backdrop-blur-sm">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center gap-8">
+                        <a class="flex items-center gap-2 text-gray-900" href="@Url.Action("Index", "Home")">
+                            <svg class="h-8 w-8 text-brand-purple" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                                <path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="#5d288a" fill-rule="evenodd"></path>
+                            </svg>
+                            <h1 class="text-xl font-bold">PricePulse</h1>
+                        </a>
+                        <nav class="hidden md:flex items-center gap-6">
+                            <a class="text-sm font-medium text-gray-600 hover:text-brand-purple transition-colors" href="@Url.Action("Index", "Home")">Home</a>
+                            <a class="text-sm font-medium text-gray-600 hover:text-brand-purple transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Products</a>
+                            <a class="text-sm font-medium text-gray-600 hover:text-brand-purple transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Deals</a>
+                            <a class="text-sm font-medium text-gray-600 hover:text-brand-purple transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Watchlist</a>
+                        </nav>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="relative hidden sm:block">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                            <input class="w-full max-w-xs pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-all text-sm" placeholder="Search products..." type="text"/>
+                        </div>
+                        <button class="p-2 rounded-full text-gray-500 hover:bg-gray-100/50 hover:text-gray-800 transition-colors">
+                            <span class="material-symbols-outlined">notifications</span>
+                        </button>
+                        <div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBuShoE3ualxWEjfuhVVzfyxMWiS-DujodWGpzAe9kvX2ow2wQQjlLPJGgMmZok5UCM0x_8ETRljHy9zRMCGAtyng4VDFgHSkB1zv6uHyiqT-p5dCBNS217VcCnDR256bT9ww6XlM_h1ii3AC5lllDWEYYGU1EJJkqfyS5mSYv1Ep5uLaIJAa4agNp5Iq0Tmjos_2NRwvB_0qILjuTsRTr-ePTXD4GzcGUBhQWIlH_hveojNey9SUvYONHdmjES26yS5el8GWDL2w");'></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-12 flex items-center justify-center">
+            <div class="max-w-md w-full">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl md:text-4xl font-black text-brand-purple tracking-tight">Vibrant Form Validation</h2>
+                    <p class="mt-4 text-lg text-gray-700">
+                        Experience instant, colorful feedback. Our form validation is designed to be clear, energetic, and user-friendly.
+                    </p>
+                </div>
+                
+                <form class="space-y-6" id="validationForm">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="email">Email Address</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">email</span>
+                            <input class="form-input w-full pl-10 pr-10 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-all" 
+                                   id="email" name="email" placeholder="you@example.com" required="" type="email"/>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <span class="material-symbols-outlined text-brand-cyan hidden is-valid">check_circle</span>
+                                <span class="material-symbols-outlined text-brand-red hidden has-error">error</span>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-brand-red hidden" id="email-error">Please enter a valid email address.</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="password">Password</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock</span>
+                            <input class="form-input w-full pl-10 pr-10 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-all" 
+                                   id="password" minlength="8" name="password" placeholder="••••••••" required="" type="password"/>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <span class="material-symbols-outlined text-brand-cyan hidden is-valid">check_circle</span>
+                                <span class="material-symbols-outlined text-brand-red hidden has-error">error</span>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-brand-red hidden" id="password-error">Password must be at least 8 characters long.</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" for="confirm-password">Confirm Password</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">lock_person</span>
+                            <input class="form-input w-full pl-10 pr-10 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-brand-purple/50 focus:border-brand-purple transition-all" 
+                                   id="confirm-password" name="confirm-password" placeholder="••••••••" required="" type="password"/>
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <span class="material-symbols-outlined text-brand-cyan hidden is-valid">check_circle</span>
+                                <span class="material-symbols-outlined text-brand-red hidden has-error">error</span>
+                            </div>
+                        </div>
+                        <p class="mt-2 text-sm font-medium text-brand-red hidden" id="confirm-password-error">Passwords do not match.</p>
+                    </div>
+                    
+                    <div class="pt-4">
+                        <button class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-brand-purple hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-purple transition-all" type="submit">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
+                
+                <p class="mt-8 text-xs text-center text-gray-500">
+                    Our brand colors provide immediate, striking feedback, making form interactions clear and energetic.
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script src="~/js/validation.js"></script>
+</body>
+</html>
