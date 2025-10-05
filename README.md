@@ -16,7 +16,7 @@ PricePulse is a comprehensive competitive price monitoring and analysis system b
 - .NET 9.0 SDK
 - PostgreSQL database
 - OpenAI API key
-- Semrush API key (optional)
+- Manual competitor management
 - Email service credentials (Gmail SMTP recommended)
 
 ## Setup Instructions
@@ -59,9 +59,6 @@ cd pricepulsedemo
   "OpenAI": {
     "ApiKey": "your-openai-api-key"
   },
-  "Semrush": {
-    "ApiKey": "your-semrush-api-key"
-  },
   "ConnectionStrings": {
     "DefaultConnection": "Host=localhost;Database=PricePulseDB;Username=postgres;Password=your-db-password"
   }
@@ -102,10 +99,10 @@ The application will be available at `http://localhost:5000`
 3. Configure authentication settings
 4. Generate client secret
 
-### Semrush API (Optional)
-1. Visit [Semrush API](https://www.semrush.com/api/)
-2. Subscribe to a plan that includes API access
-3. Generate your API key
+### Manual Competitor Management
+1. Navigate to the Competitor section
+2. Add competitors manually using the form
+3. Manage your competitor list
 
 ## Security Notes
 
@@ -122,10 +119,3 @@ The application will be available at `http://localhost:5000`
 4. Test thoroughly
 5. Submit a pull request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support and questions, please open an issue on GitHub or contact the development team.

@@ -151,7 +151,7 @@ COMPETITOR ANALYSIS & MONITORING
     - Description: Competitor discovery and management interface
     - Features:
       * Domain input for competitor discovery
-      * Semrush API integration for competitor identification
+      * Manual competitor management and identification
       * Manual competitor entry option
       * Competitor confirmation workflow
       * Sample data display when API limits reached
@@ -234,7 +234,7 @@ Authentication & Security:
 
 Data Integration:
 - OpenAI API for AI-powered product discovery
-- Semrush API for competitor identification
+- Manual competitor management
 - PostgreSQL database with Entity Framework Core
 - Real-time data processing and caching
 

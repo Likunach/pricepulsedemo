@@ -1,0 +1,357 @@
+@model PricePulse.ViewModels.CompetitorProfileViewModel
+@{
+    ViewData["Title"] = $"PricePulse - {Model.CompetitorName}";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-purple": "#5D288A",
+                        "primary-cyan": "#00B5C9",
+                        "primary-red": "#F94239",
+                        "background-light": "#f8fafc",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-gray-900">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white border-r border-gray-200 flex flex-col">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="w-10 h-10 bg-primary-purple rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">P</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                </div>
+                <nav class="space-y-2">
+                    <a href="@Url.Action("Index", "Competitor")" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                        <span>Back to Competitors</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Home")" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined">home</span>
+                        <span>Home</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            <div class="p-6 lg:p-8">
+                <div class="max-w-7xl mx-auto">
+                    
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                            @TempData["Success"]
+                        </div>
+                    }
+                    
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                            @TempData["Error"]
+                        </div>
+                    }
+
+                    <!-- Competitor Header -->
+                    <div class="bg-white rounded-xl border border-gray-200 p-8 mb-8">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-6">
+                                <div class="w-20 h-20 bg-gradient-to-br from-primary-purple to-primary-cyan rounded-xl flex items-center justify-center">
+                                    <span class="text-white font-bold text-2xl">@Model.CompetitorName.Substring(0, Math.Min(2, Model.CompetitorName.Length)).ToUpper()</span>
+                                </div>
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900">@Model.CompetitorName</h1>
+                                    <p class="text-gray-600 mt-1">@Model.CompetitorWebsite</p>
+                                    @if (!string.IsNullOrEmpty(Model.CompetitorDescription))
+                                    {
+                                        <p class="text-sm text-gray-500 mt-2">@Model.CompetitorDescription</p>
+                                    }
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4">
+                                <a href="@Model.CompetitorWebsite" target="_blank" class="text-gray-400 hover:text-primary-purple transition-colors" title="Visit Website">
+                                    <span class="material-symbols-outlined text-2xl">open_in_new</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-primary-purple/10 rounded-lg">
+                                    <span class="material-symbols-outlined text-primary-purple text-2xl">inventory_2</span>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">Total Products</p>
+                                    <p class="text-2xl font-bold text-gray-900">@Model.TotalProductsDiscovered</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-primary-cyan/10 rounded-lg">
+                                    <span class="material-symbols-outlined text-primary-cyan text-2xl">check_circle</span>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">Active Products</p>
+                                    <p class="text-2xl font-bold text-gray-900">@Model.ActiveProducts</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl border border-gray-200 p-6">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-primary-red/10 rounded-lg">
+                                    <span class="material-symbols-outlined text-primary-red text-2xl">schedule</span>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-600">Last Analyzed</p>
+                                    <p class="text-2xl font-bold text-gray-900">@(Model.LastAnalyzed == DateTime.MinValue ? "Never" : Model.LastAnalyzed.ToString("MMM dd"))</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Discover Products Section -->
+                    <div class="bg-white rounded-xl border border-gray-200 p-8 mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900">Product Discovery</h2>
+                                <p class="text-gray-600 mt-1">Discover new products from this competitor's website</p>
+                            </div>
+                            <form action="@Url.Action("DiscoverProductsForCompetitor", "Competitor")" method="post" class="inline">
+                                <input type="hidden" name="competitorId" value="@Model.CompetitorId" />
+                                <button type="submit" class="bg-primary-red text-white px-8 py-4 rounded-lg text-lg font-bold hover:bg-primary-red/90 transition-transform transform hover:scale-105 shadow-lg shadow-primary-red/30 flex items-center space-x-3" id="discoverProductsBtn">
+                                    <span class="material-symbols-outlined text-xl">search</span>
+                                    <span id="discoverBtnText">Discover Products</span>
+                                    <span id="discoverLoadingSpinner" style="display: none;">
+                                        <span class="material-symbols-outlined text-xl animate-spin">autorenew</span>
+                                        <span>Analyzing...</span>
+                                    </span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Historical Products Section -->
+                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xl font-semibold text-gray-900">Discovered Products</h3>
+                                <div class="flex items-center space-x-4">
+                                    <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm" id="sortProducts">
+                                        <option value="newest">Newest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                        <option value="name">Product Name</option>
+                                        <option value="price">Price</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if (Model.HistoricalProducts.Any())
+                        {
+                            <div class="divide-y divide-gray-100">
+                                @foreach (var product in Model.HistoricalProducts)
+                                {
+                                    <div class="p-6 hover:bg-gray-50 transition-colors">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-1">
+                                                    <div class="flex items-center space-x-2">
+                                                        <h4 class="text-lg font-semibold text-gray-900">@product.ProductName</h4>
+                                                        @if (!string.IsNullOrEmpty(product.CompetitorPrice))
+                                                        {
+                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-red/10 text-primary-red">
+                                                                @product.CompetitorPrice @product.CompetitorCurrency
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    @if (!string.IsNullOrEmpty(product.ProductDescription))
+                                                    {
+                                                        <p class="text-gray-600 mt-1">@product.ProductDescription</p>
+                                                    }
+                                                    <div class="flex items-center space-x-4 mt-2">
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                            @product.ProductCategory
+                                                        </span>
+                                                        <span class="text-xs text-gray-500">
+                                                            Discovered @product.DiscoveredAt.ToString("MMM dd, yyyy")
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex items-center space-x-2">
+                                                @if (!string.IsNullOrEmpty(product.CompetitorProductUrl))
+                                                {
+                                                    <a href="@product.CompetitorProductUrl" target="_blank" class="text-gray-400 hover:text-primary-purple transition-colors" title="View Product">
+                                                        <span class="material-symbols-outlined">open_in_new</span>
+                                                    </a>
+                                                }
+                                                @if (product.Retailers.Any())
+                                                {
+                                                    <span class="text-xs text-gray-500">@product.Retailers.Count retailers</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="p-12 text-center">
+                                <div class="h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <span class="material-symbols-outlined text-4xl text-gray-400">inventory_2</span>
+                                </div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Products Discovered Yet</h3>
+                                <p class="text-gray-600 mb-8">Click "Discover Products" to analyze this competitor's website and find their products.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="fixed inset-0 bg-background-light/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center text-center p-8 hidden" id="processingOverlay">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex items-center justify-center space-x-4 text-2xl font-bold text-primary-purple mb-4">
+                <div class="relative h-12 w-12">
+                    <div class="absolute h-full w-full rounded-full bg-primary-red opacity-75 animate-ping"></div>
+                    <div class="relative flex h-full w-full items-center justify-center rounded-full bg-primary-red">
+                        <span class="material-symbols-outlined text-white text-2xl">search</span>
+                    </div>
+                </div>
+                <span id="loadingTitle">Discovering Products...</span>
+            </div>
+            <p id="loadingDescription" class="text-gray-600 mb-6">Scanning competitor website for products and pricing information.</p>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div id="progressBar" class="bg-gradient-to-r from-primary-red to-primary-purple h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+            <div id="progressText" class="mt-3 text-sm font-medium text-gray-500">Processing... 0%</div>
+        </div>
+    </div>
+
+    <script>
+        function showLoadingOverlay(title, description) {
+            const processingOverlay = document.getElementById('processingOverlay');
+            const titleElement = document.getElementById('loadingTitle');
+            const descriptionElement = document.getElementById('loadingDescription');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (titleElement) titleElement.textContent = title;
+            if (descriptionElement) descriptionElement.textContent = description;
+            
+            processingOverlay.classList.remove('hidden');
+            
+            // Reset progress
+            let progress = 0;
+            if (progressBar) progressBar.style.width = '0%';
+            if (progressText) progressText.textContent = 'Initializing... 0%';
+            
+            // Simulate progress with stages
+            const stages = [
+                { progress: 10, text: 'Connecting to competitor...' },
+                { progress: 25, text: 'Scanning website...' },
+                { progress: 45, text: 'Identifying products...' },
+                { progress: 65, text: 'Analyzing pricing...' },
+                { progress: 80, text: 'Processing data...' },
+                { progress: 95, text: 'Finalizing results...' }
+            ];
+            
+            let currentStage = 0;
+            
+            const progressInterval = setInterval(() => {
+                if (currentStage < stages.length) {
+                    progress = stages[currentStage].progress;
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    if (progressText) progressText.textContent = `${stages[currentStage].text} ${progress}%`;
+                    currentStage++;
+                } else {
+                    // Random increment after stages
+                    progress += Math.random() * 2;
+                    if (progress > 95) progress = 95;
+                    
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    if (progressText) progressText.textContent = `Processing... ${Math.round(progress)}%`;
+                }
+            }, 1000);
+            
+            // Clear interval after 25 seconds
+            setTimeout(() => {
+                clearInterval(progressInterval);
+            }, 25000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading to discover products button
+            const discoverForm = document.querySelector('form[action*="DiscoverProductsForCompetitor"]');
+            if (discoverForm) {
+                discoverForm.addEventListener('submit', function(e) {
+                    showLoadingOverlay('Discovering Products', 'Scanning competitor website for products and pricing information.');
+                });
+            }
+
+            // Sort products functionality
+            const sortSelect = document.getElementById('sortProducts');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    // Simple client-side sorting for demo
+                    const productContainer = document.querySelector('.divide-y');
+                    if (productContainer) {
+                        const products = Array.from(productContainer.children);
+                        // This is a simplified sort - in a real app you'd want server-side sorting
+                        console.log('Sorting products by:', this.value);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

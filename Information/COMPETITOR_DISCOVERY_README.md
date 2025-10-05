@@ -2,25 +2,25 @@
 
 ## Overview
 
-The Competitor Discovery feature integrates with Semrush API to automatically identify and track competitors for your business. This feature follows the flowchart you provided and includes both automatic discovery and manual entry capabilities.
+The Competitor Discovery feature provides manual competitor management for your business. This feature includes manual entry capabilities for adding and tracking competitors.
 
 ## Features Implemented
 
-### 1. Semrush API Integration
-- **Service**: `SemrushService.cs`
-- **API Key**: Configured in `appsettings.Development.json`
-- **Endpoints**: 
-  - Domain organic competitors
-  - Domain ranking details
-- **Caching**: 24-hour cache for competitor data
+### 1. Manual Competitor Management
+- **Service**: Manual entry forms
+- **Configuration**: No external API required
+- **Features**: 
+  - Manual competitor entry
+  - Competitor details management
+- **Storage**: Local competitor data
 
-### 2. Competitor Discovery Flow
+### 2. Competitor Management Flow
 - **Input**: Company domain (e.g., apple.com)
 - **Process**: 
-  1. Retrieve competitor data from Semrush
-  2. Present data to client for confirmation
-  3. Allow manual entry if needed
-  4. Save confirmed competitors to company profile
+  1. Present manual entry form
+  2. User enters competitor details
+  3. Save competitors to company profile
+  4. Manage competitor list
 
 ### 3. User Interface
 - **Discovery Page**: `/Competitor` - Main competitor discovery interface
@@ -38,7 +38,6 @@ The Competitor Discovery feature integrates with Semrush API to automatically id
 
 ```
 Services/
-├── SemrushService.cs              # Semrush API integration
 ├── CompetitorMonitoringService.cs # Background monitoring
 └── OpenAIService.cs              # Existing product discovery
 
@@ -49,48 +48,38 @@ ViewModels/
 └── CompetitorViewModel.cs         # Data models
 
 Views/Competitor/
-├── Index.cshtml                   # Discovery interface
+├── Index.cshtml                   # Manual entry interface
 └── List.cshtml                    # Competitor list
 
 Program.cs                         # Service registration
-appsettings.Development.json       # API configuration
 ```
 
-## API Configuration
+## Configuration
 
-The Semrush API key is configured in `appsettings.Development.json`:
-
-```json
-{
-  "Semrush": {
-    "ApiKey": "26b2b9f11cf4d65fc35f5a20d1b2bb1b"
-  }
-}
-```
+No external API configuration is required for manual competitor management.
 
 ## Usage Flow
 
-### 1. Discover Competitors
+### 1. Add Competitors
 1. Navigate to `/Competitor`
 2. Enter your company domain
-3. Click "Discover Competitors"
-4. Review discovered competitors
-5. Select competitors to confirm
-6. Click "Confirm Selected Competitors"
+3. Click "Add Competitors"
+4. Fill in competitor details manually
+5. Save competitors
 
 ### 2. Manual Entry
-1. If no competitors found, click "Add Manually"
+1. Click "Add Competitors" to show manual entry form
 2. Fill in competitor details:
    - Competitor Name
    - Website URL
    - Product Listing Page
    - Notes
-3. Click "Save Manual Competitors"
+3. Click "Save Competitors"
 
 ### 3. Manage Competitors
 1. Navigate to `/Competitor/List?domain=yourdomain.com`
-2. View competitor metrics and status
-3. Refresh data or add more competitors
+2. View competitor details and status
+3. Add more competitors or edit existing ones
 4. Analyze competitor products
 
 ## Data Models
@@ -133,23 +122,21 @@ public class CompetitorInfo
 
 ## Error Handling
 
-- **API Failures**: Graceful fallback to manual entry
-- **Network Issues**: Retry logic with exponential backoff
 - **Invalid Data**: Validation and user feedback
-- **Cache Misses**: Automatic refresh from API
+- **Form Errors**: Clear error messages
+- **Data Validation**: Input sanitization
 
 ## Performance Features
 
-- **Caching**: 24-hour cache for competitor data
-- **Async Operations**: Non-blocking API calls
+- **Form Handling**: Efficient form processing
+- **Data Storage**: Local competitor data management
 - **Pagination**: Handle large competitor lists
 - **Background Processing**: Offload heavy operations
 
 ## Security Considerations
 
-- **API Key**: Stored in configuration, not in code
 - **Input Validation**: Sanitize all user inputs
-- **Rate Limiting**: Respect Semrush API limits
+- **Data Security**: Secure data handling
 - **Authentication**: Require user login for access
 
 ## Future Enhancements
@@ -180,31 +167,22 @@ To test the feature:
 
 1. **No competitors found**: 
    - Check if domain is valid
-   - Verify Semrush API key
-   - Try manual entry
+   - Use manual entry form
+   - Add competitors manually
 
-2. **API errors**:
-   - Check network connection
-   - Verify API key validity
-   - Check Semrush API status
+2. **Form errors**:
+   - Check form validation
+   - Verify required fields
+   - Check data format
 
 3. **Slow loading**:
-   - Check cache configuration
-   - Monitor API response times
+   - Check form processing
+   - Monitor data operations
    - Consider reducing data scope
 
 ## Configuration Options
 
-```json
-{
-  "Semrush": {
-    "ApiKey": "your-api-key",
-    "CacheHours": 24,
-    "MaxCompetitors": 20,
-    "TimeoutSeconds": 30
-  }
-}
-```
+No external API configuration is required for manual competitor management.
 
-This implementation provides a comprehensive competitor discovery system that integrates seamlessly with your existing PricePulse application while following the flowchart requirements you provided.
+This implementation provides a comprehensive competitor management system that integrates seamlessly with your existing PricePulse application for manual competitor tracking and analysis.
 

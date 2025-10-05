@@ -19,8 +19,8 @@
                     <a class="nav-link" href="#features">Features</a>
                     @if (User?.Identity?.IsAuthenticated ?? false)
                     {
-                        <a href="/ProductDiscovery" class="nav-link">Product Discovery</a>
-                        <a href="/Competitor" class="nav-link">Competitor Discovery</a>
+                        <a href="/ProductDiscovery" class="nav-link">Discovery</a>
+                        <a href="/Competitor" class="nav-link">Competitors</a>
                         <a href="/Account/Info" class="nav-link">Account</a>
                         <span class="nav-link disabled">@("Logged in as " + (User.Identity?.Name ?? User.FindFirst("email")?.Value ?? "User"))</span>
                         <form method="post" action="/Account/Logout" style="display:inline;">

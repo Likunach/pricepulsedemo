@@ -11,64 +11,30 @@ namespace PricePulse.DAOs.Implementations
         {
         }
 
-        public async Task<IEnumerable<CompetitorProduct>> GetByCompetitorIdAsync(int competitorId)
+        public async Task<List<CompetitorProduct>> GetByCompetitorIdAsync(int competitorId)
         {
-            return await _dbSet
+            return await _context.CompetitorProducts
                 .Where(cp => cp.CompetitorId == competitorId)
-                .Include(cp => cp.Competitor)
                 .Include(cp => cp.OwnProduct)
+                .Include(cp => cp.Competitor)
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<CompetitorProduct>> GetByOwnProductIdAsync(int ownProductId)
+        public async Task<List<CompetitorProduct>> GetByOwnProductIdAsync(int ownProductId)
         {
-            return await _dbSet
+            return await _context.CompetitorProducts
                 .Where(cp => cp.OwnProductId == ownProductId)
-                .Include(cp => cp.Competitor)
                 .Include(cp => cp.OwnProduct)
+                .Include(cp => cp.Competitor)
                 .ToListAsync();
         }
 
-        public async Task<CompetitorProduct?> GetCompetitorProductWithPricesAsync(int competitorProductId)
+        public async Task<List<CompetitorProduct>> GetByProductNameAsync(string productName)
         {
-            return await _dbSet
-                .Include(cp => cp.Competitor)
+            return await _context.CompetitorProducts
+                .Where(cp => cp.CProductName != null && cp.CProductName.Contains(productName))
                 .Include(cp => cp.OwnProduct)
-                .Include(cp => cp.Prices.OrderByDescending(p => p.CreatedDate))
-                .FirstOrDefaultAsync(cp => cp.CompetitorProductId == competitorProductId);
-        }
-
-        public async Task<IEnumerable<CompetitorProduct>> GetProductsWithRecentPricesAsync(int days = 30)
-        {
-            var cutoffDate = DateTime.UtcNow.AddDays(-days);
-            return await _dbSet
                 .Include(cp => cp.Competitor)
-                .Include(cp => cp.OwnProduct)
-                .Include(cp => cp.Prices.Where(p => p.CreatedDate >= cutoffDate))
-                .Where(cp => cp.Prices.Any(p => p.CreatedDate >= cutoffDate))
-                .ToListAsync();
-        }
-
-        public async Task<bool> CompetitorProductExistsAsync(int competitorId, int ownProductId)
-        {
-            return await _dbSet.AnyAsync(cp => cp.CompetitorId == competitorId && cp.OwnProductId == ownProductId);
-        }
-
-        public async Task<IEnumerable<CompetitorProduct>> GetByCompetitorAndProductAsync(int competitorId, int ownProductId)
-        {
-            return await _dbSet
-                .Where(cp => cp.CompetitorId == competitorId && cp.OwnProductId == ownProductId)
-                .Include(cp => cp.Competitor)
-                .Include(cp => cp.OwnProduct)
-                .ToListAsync();
-        }
-
-        // Override GetAllAsync to include navigation properties
-        public override async Task<IEnumerable<CompetitorProduct>> GetAllAsync()
-        {
-            return await _dbSet
-                .Include(cp => cp.Competitor)
-                .Include(cp => cp.OwnProduct)
                 .ToListAsync();
         }
     }

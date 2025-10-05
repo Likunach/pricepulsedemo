@@ -80,12 +80,10 @@
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-20 border-b border-gray-200">
                     <div class="flex items-center space-x-3">
-                <img src="/images/logo.png" alt="PricePulse logo" class="h-8 w-8" />
-                        <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                        <img src="/images/logo.png" alt="PricePulse logo" class="logo" />
                     </div>
                     <nav class="hidden md:flex items-center space-x-8">
-                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Dashboard</a>
-                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("MyProducts", "ProductDiscovery")">My Products</a>
+                        <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Home</a>
                         <a class="text-sm font-medium text-primary border-b-2 border-primary" href="@Url.Action("ManualEntry", "ProductDiscovery")">Manual Entry</a>
                         <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Discover</a>
                         <a class="text-sm font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Info", "Account")">
@@ -251,6 +249,26 @@
         </main>
     </div>
 
+    <!-- Loading Overlay -->
+    <div class="fixed inset-0 bg-background-light/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center text-center p-8 hidden" id="processingOverlay">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex items-center justify-center space-x-4 text-2xl font-bold text-primary mb-4">
+                <div class="relative h-12 w-12">
+                    <div class="absolute h-full w-full rounded-full bg-accent opacity-75 animate-ping"></div>
+                    <div class="relative flex h-full w-full items-center justify-center rounded-full bg-accent">
+                        <span class="material-symbols-outlined text-white text-2xl">save</span>
+                    </div>
+                </div>
+                <span id="loadingTitle">Saving Product...</span>
+            </div>
+            <p id="loadingDescription" class="text-gray-600 mb-6">Saving your product and competitor information to the database.</p>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div id="progressBar" class="bg-gradient-to-r from-accent to-primary h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+            <div id="progressText" class="mt-3 text-sm font-medium text-gray-500">Processing... 0%</div>
+        </div>
+    </div>
+
     <script>
         let competitorCount = 2;
         
@@ -313,6 +331,56 @@
             button.parentElement.remove();
         }
         
+        function showLoadingOverlay(title, description) {
+            const processingOverlay = document.getElementById('processingOverlay');
+            const titleElement = document.getElementById('loadingTitle');
+            const descriptionElement = document.getElementById('loadingDescription');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (titleElement) titleElement.textContent = title;
+            if (descriptionElement) descriptionElement.textContent = description;
+            
+            processingOverlay.classList.remove('hidden');
+            
+            // Reset progress
+            let progress = 0;
+            if (progressBar) progressBar.style.width = '0%';
+            if (progressText) progressText.textContent = 'Initializing... 0%';
+            
+            // Simulate progress with stages
+            const stages = [
+                { progress: 20, text: 'Validating data...' },
+                { progress: 40, text: 'Creating product...' },
+                { progress: 60, text: 'Saving competitors...' },
+                { progress: 80, text: 'Processing pricing...' },
+                { progress: 95, text: 'Finalizing...' }
+            ];
+            
+            let currentStage = 0;
+            
+            const progressInterval = setInterval(() => {
+                if (currentStage < stages.length) {
+                    progress = stages[currentStage].progress;
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    if (progressText) progressText.textContent = `${stages[currentStage].text} ${progress}%`;
+                    currentStage++;
+                } else {
+                    // Random increment after stages
+                    progress += Math.random() * 3;
+                    if (progress > 95) progress = 95;
+                    
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    if (progressText) progressText.textContent = `Processing... ${Math.round(progress)}%`;
+                }
+            }, 600);
+            
+            // Clear interval after 10 seconds
+            setTimeout(() => {
+                clearInterval(progressInterval);
+            }, 10000);
+        }
+
         // Form validation
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('form');
@@ -320,6 +388,13 @@
             
             // Initialize currency symbol on page load
             updateCurrencySymbol();
+            
+            // Add loading to form submission
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    showLoadingOverlay('Saving Product', 'Saving your product and competitor information to the database.');
+                });
+            }
             
             inputs.forEach(input => {
                 input.addEventListener('blur', function() {

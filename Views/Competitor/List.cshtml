@@ -53,13 +53,12 @@
         <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
             <div class="p-6">
                 <div class="flex items-center space-x-3 mb-8">
-                    <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-10" />
-                    <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                    <img src="/images/logo.png" alt="PricePulse logo" class="logo" />
                 </div>
                 <nav class="space-y-2">
-                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors" href="@Url.Action("Index", "Dashboard")">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Dashboard</span>
+                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">
+                        <span class="material-symbols-outlined">home</span>
+                        <span>Home</span>
                     </a>
                     <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg bg-primary text-white shadow-lg shadow-primary/30" href="@Url.Action("Index", "Competitor")">
                         <span class="material-symbols-outlined">groups</span>
@@ -67,7 +66,7 @@
                     </a>
                     <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 hover:text-primary transition-colors" href="@Url.Action("Index", "ProductDiscovery")">
                         <span class="material-symbols-outlined">inventory_2</span>
-                        <span>Products</span>
+                        <span>Discover</span>
                     </a>
                     
                 </nav>
@@ -245,6 +244,9 @@
                                                                 <span class="material-symbols-outlined">shopping_cart</span>
                                                             </button>
                                                         </form>
+                                                        <a href="@Url.Action("CompetitorProducts", "Competitor", new { domain = competitor.Domain })" class="text-gray-400 hover:text-primary transition-colors" title="View Products">
+                                                            <span class="material-symbols-outlined">inventory_2</span>
+                                                        </a>
                                                         <button onclick="removeCompetitor('@competitor.Domain')" class="text-gray-400 hover:text-red-500 transition-colors" title="Remove">
                                                             <span class="material-symbols-outlined">delete</span>
                                                         </button>

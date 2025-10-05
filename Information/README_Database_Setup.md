@@ -98,5 +98,5 @@ Once the database is set up, you can proceed to:
 1. Create DAOs (Data Access Objects)
 2. Implement API endpoints
 3. Add authentication middleware
-4. Integrate with Semrush API
+4. Set up manual competitor management
 5. Add OpenAI integration for pricing analysis

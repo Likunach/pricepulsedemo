@@ -25,6 +25,7 @@ builder.Services.AddScoped<IOwnProductDAO, OwnProductDAO>();
 builder.Services.AddScoped<IPriceDAO, PriceDAO>();
 builder.Services.AddScoped<ICompetitorDAO, CompetitorDAO>();
 builder.Services.AddScoped<ICompetitorProductDAO, CompetitorProductDAO>();
+builder.Services.AddScoped<ICompetitorProductAnalysisDAO, CompetitorProductAnalysisDAO>();
 builder.Services.AddScoped<IContactDAO, ContactDAO>();
 builder.Services.AddScoped<IAuthenticationDAO, AuthenticationDAO>();
 builder.Services.AddScoped<ISessionDAO, SessionDAO>();
@@ -56,23 +57,6 @@ builder.Services.AddHttpClient<PricePulse.Services.IOpenAIService, PricePulse.Se
 })
 .AddPolicyHandler(GetRetryPolicy());
 
-builder.Services.AddHttpClient<PricePulse.Services.ISemrushService, PricePulse.Services.SemrushService>(client =>
-{
-    client.Timeout = TimeSpan.FromMinutes(5);
-    client.DefaultRequestHeaders.Add("User-Agent", "PricePulse/1.0");
-})
-.ConfigurePrimaryHttpMessageHandler(() =>
-{
-    var handler = new HttpClientHandler();
-    if (builder.Environment.IsDevelopment())
-    {
-        handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
-    }
-    // Enable automatic decompression
-    handler.AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.Brotli;
-    return handler;
-})
-.AddPolicyHandler(GetRetryPolicy());
 
 builder.Services.AddScoped<PricePulse.Services.ICompetitorProductAnalysisService, PricePulse.Services.CompetitorProductAnalysisService>();
 builder.Services.AddMemoryCache();

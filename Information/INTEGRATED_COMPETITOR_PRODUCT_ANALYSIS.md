@@ -2,18 +2,18 @@
 
 ## Overview
 
-This system combines competitor discovery (via Semrush API) with automated product analysis (via OpenAI API) to provide a complete competitive intelligence solution. Once competitors are identified, the system automatically analyzes their websites to extract products and prices.
+This system provides manual competitor management with automated product analysis (via OpenAI API) to provide a complete competitive intelligence solution. Once competitors are manually added, the system automatically analyzes their websites to extract products and prices.
 
 ## Complete Workflow
 
-### 1. Competitor Discovery Phase
+### 1. Competitor Management Phase
 1. **Input**: Company domain (e.g., apple.com)
 2. **Process**: 
-   - Semrush API retrieves competitor data
-   - System presents competitors to user
-   - User confirms which competitors to track
-   - Manual entry option for missing competitors
-3. **Output**: List of confirmed competitors with SEO metrics
+   - User manually adds competitors
+   - System presents manual entry form
+   - User enters competitor details
+   - Manual entry for all competitors
+3. **Output**: List of manually added competitors
 
 ### 2. Product Analysis Phase
 1. **Trigger**: User clicks "Analyze All Products" or individual competitor analysis
@@ -34,7 +34,6 @@ This system combines competitor discovery (via Semrush API) with automated produ
 ## Key Components
 
 ### Services
-- **`SemrushService`** - Competitor discovery via Semrush API
 - **`OpenAIService`** - Product extraction via OpenAI API
 - **`CompetitorProductAnalysisService`** - Orchestrates the integration
 - **`CompetitorMonitoringService`** - Background monitoring
@@ -56,20 +55,6 @@ This system combines competitor discovery (via Semrush API) with automated produ
 
 ## API Integration
 
-### Semrush API
-```json
-{
-  "Semrush": {
-    "ApiKey": "26b2b9f11cf4d65fc35f5a20d1b2bb1b"
-  }
-}
-```
-
-**Endpoints Used**:
-- Domain organic competitors
-- Domain ranking details
-- Traffic and keyword metrics
-
 ### OpenAI API
 ```json
 {
@@ -88,9 +73,9 @@ This system combines competitor discovery (via Semrush API) with automated produ
 
 ## User Interface Flow
 
-### 1. Competitor Discovery (`/Competitor`)
+### 1. Competitor Management (`/Competitor`)
 ```
-[Enter Domain] → [Discover Competitors] → [Review Results] → [Confirm Selection] → [Manual Entry if needed]
+[Enter Domain] → [Manual Entry Form] → [Add Competitors] → [Save Competitors]
 ```
 
 ### 2. Product Analysis (`/Competitor/List`)
@@ -113,9 +98,7 @@ This system combines competitor discovery (via Semrush API) with automated produ
 ```
 User Input (Domain)
     ↓
-SemrushService (Competitor Discovery)
-    ↓
-CompetitorController (User Confirmation)
+CompetitorController (Manual Entry)
     ↓
 CompetitorProductAnalysisService (Orchestration)
     ↓
@@ -166,8 +149,8 @@ Results Display (Analysis Results)
 ### Basic Workflow
 1. **Navigate to `/Competitor`**
 2. **Enter domain**: `apple.com`
-3. **Click "Discover Competitors"**
-4. **Review and confirm competitors**
+3. **Click "Add Competitors"**
+4. **Manually enter competitor details**
 5. **Click "Analyze All Products"**
 6. **View comprehensive results**
 
@@ -206,12 +189,6 @@ Results Display (Analysis Results)
 
 ```json
 {
-  "Semrush": {
-    "ApiKey": "your-api-key",
-    "CacheHours": 24,
-    "MaxCompetitors": 20,
-    "TimeoutSeconds": 30
-  },
   "OpenAI": {
     "ApiKey": "your-api-key",
     "Model": "gpt-4o-mini",
@@ -258,8 +235,8 @@ Results Display (Analysis Results)
 
 1. **No competitors found**:
    - Check domain validity
-   - Verify Semrush API key
-   - Try manual entry
+   - Use manual entry form
+   - Add competitors manually
 
 2. **Product analysis fails**:
    - Check OpenAI API key
@@ -278,7 +255,7 @@ Results Display (Analysis Results)
 - **Performance Metrics**: Analysis timing
 - **Cache Status**: Hit/miss information
 
-This integrated system provides a complete competitive intelligence solution that combines the power of Semrush for competitor discovery with OpenAI for intelligent product analysis, creating a comprehensive tool for market research and competitive analysis.
+This integrated system provides a complete competitive intelligence solution that combines manual competitor management with OpenAI for intelligent product analysis, creating a comprehensive tool for market research and competitive analysis.
 
 
 

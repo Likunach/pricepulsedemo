@@ -1,0 +1,282 @@
+@model PricePulse.ViewModels.CompetitorDiscoveryResultViewModel
+@{
+    ViewData["Title"] = "AI Competitor Discovery";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5d288a",
+                        "accent": "#f94037",
+                        "background-light": "#eff9f2",
+                        "secondary-accent": "#0cb8ca"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light min-h-screen">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg min-h-screen">
+            <div class="p-6">
+                <div class="flex items-center space-x-3 mb-8">
+                    <img src="/images/logo.png" alt="PricePulse logo" class="logo" />
+                </div>
+                
+                <nav class="space-y-2">
+                    <a href="@Url.Action("Index", "ProductDiscovery")" class="flex items-center space-x-3 px-4 py-3 bg-primary/10 text-primary rounded-lg">
+                        <span class="material-symbols-outlined">search</span>
+                        <span>Discovery</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Account")" class="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined">person</span>
+                        <span>Account</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-8">
+            <div class="max-w-6xl mx-auto">
+                <!-- Header -->
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900">AI Competitor Discovery</h1>
+                        <p class="text-gray-600 mt-2">Discover competitors for your business and analyze their products.</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="saveSelectedCompetitors()" class="bg-accent text-white px-6 py-3 rounded-lg font-bold hover:bg-accent/90 transition-colors flex items-center space-x-2">
+                            <span class="material-symbols-outlined">save</span>
+                            <span>Save Competitors</span>
+                        </button>
+                    </div>
+                </div>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                        @TempData["Success"]
+                    </div>
+                }
+                
+                @if (TempData["Error"] != null)
+                {
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        @TempData["Error"]
+                    </div>
+                }
+
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-primary/10 rounded-lg">
+                                <span class="material-symbols-outlined text-primary text-2xl">business</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Competitors</p>
+                                <p class="text-2xl font-bold text-gray-900">@Model.TotalCompetitors</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-secondary-accent/10 rounded-lg">
+                                <span class="material-symbols-outlined text-secondary-accent text-2xl">check_circle</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Selected</p>
+                                <p class="text-2xl font-bold text-gray-900">@Model.SelectedCompetitors</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl border border-gray-200 p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-accent/10 rounded-lg">
+                                <span class="material-symbols-outlined text-accent text-2xl">schedule</span>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Discovery Time</p>
+                                <p class="text-2xl font-bold text-gray-900">@Model.DiscoveryTime.ToString("F1")s</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Competitors List -->
+                <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-semibold text-gray-900">@Model.TotalCompetitors AI Discovered Competitors</h3>
+                            <div class="flex items-center space-x-4">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="text-sm font-medium text-gray-700">Select All</span>
+                                </label>
+                                <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                                    <option>Sort by: Relevance</option>
+                                    <option>Sort by: Company Name</option>
+                                    <option>Sort by: Market Position</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (Model.DiscoveredCompetitors.Any())
+                    {
+                        <div class="divide-y divide-gray-100">
+                            @foreach (var competitor in Model.DiscoveredCompetitors)
+                            {
+                                <div class="p-6 hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <input type="checkbox" 
+                                                   class="competitor-checkbox rounded border-gray-300 text-primary focus:ring-primary" 
+                                                   data-competitor-name="@competitor.CompanyName"
+                                                   data-competitor-url="@competitor.WebsiteUrl"
+                                                   data-competitor-description="@competitor.Description"
+                                                   @(competitor.IsSelected ? "checked" : "")>
+                                            
+                                            <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary-accent rounded-lg flex items-center justify-center">
+                                                <span class="text-white font-bold text-lg">@competitor.CompanyName.Substring(0, Math.Min(2, competitor.CompanyName.Length)).ToUpper()</span>
+                                            </div>
+                                            
+                                            <div class="flex-1">
+                                                <div class="flex items-center space-x-2">
+                                                    <h4 class="text-lg font-semibold text-gray-900">@competitor.CompanyName</h4>
+                                                    <a href="@competitor.WebsiteUrl" target="_blank" class="text-primary hover:text-primary/80">
+                                                        <span class="material-symbols-outlined text-sm">open_in_new</span>
+                                                    </a>
+                                                </div>
+                                                <p class="text-gray-600 mt-1">@competitor.Description</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center space-x-2">
+                                            <button onclick="viewCompetitorProducts('@competitor.WebsiteUrl', '@competitor.CompanyName')" 
+                                                    class="text-gray-400 hover:text-primary transition-colors" 
+                                                    title="View Products">
+                                                <span class="material-symbols-outlined">inventory_2</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-12 text-center">
+                            <div class="h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <span class="material-symbols-outlined text-4xl text-gray-400">business</span>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">No Competitors Found</h3>
+                            <p class="text-gray-600">Try a different website or check your prompt.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const competitorCheckboxes = document.querySelectorAll('.competitor-checkbox');
+            
+            competitorCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        function saveSelectedCompetitors() {
+            const selectedCompetitors = [];
+            const checkboxes = document.querySelectorAll('.competitor-checkbox:checked');
+            
+            checkboxes.forEach(checkbox => {
+                selectedCompetitors.push({
+                    CompanyName: checkbox.dataset.competitorName,
+                    WebsiteUrl: checkbox.dataset.competitorUrl,
+                    Description: checkbox.dataset.competitorDescription,
+                    IsSelected: true
+                });
+            });
+
+            if (selectedCompetitors.length === 0) {
+                alert('Please select at least one competitor to save.');
+                return;
+            }
+
+            // Submit form to save competitors
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '@Url.Action("SaveCompetitors", "ProductDiscovery")';
+            
+            const csrfToken = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '__RequestVerificationToken';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+            }
+
+            selectedCompetitors.forEach((competitor, index) => {
+                Object.keys(competitor).forEach(key => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `competitors[${index}].${key}`;
+                    input.value = competitor[key];
+                    form.appendChild(input);
+                });
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function viewCompetitorProducts(websiteUrl, companyName) {
+            // Redirect to competitor products page
+            window.location.href = '@Url.Action("CompetitorProducts", "Competitor")' + '?domain=' + encodeURIComponent(websiteUrl) + '&name=' + encodeURIComponent(companyName);
+        }
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PricePulse.Data;
@@ -11,9 +12,11 @@ using PricePulse.Data;
 namespace PricePulse.Migrations
 {
     [DbContext(typeof(PricePulseDbContext))]
-    partial class PricePulseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251004210212_AddCompetitorProductAnalysis")]
+    partial class AddCompetitorProductAnalysis
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

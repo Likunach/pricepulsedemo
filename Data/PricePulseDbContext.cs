@@ -16,6 +16,8 @@ namespace PricePulse.Data
         public DbSet<CompanyProfile> CompanyProfiles { get; set; }
         public DbSet<Competitor> Competitors { get; set; }
         public DbSet<CompetitorProduct> CompetitorProducts { get; set; }
+        public DbSet<CompetitorProductAnalysis> CompetitorProductAnalyses { get; set; }
+        public DbSet<CompetitorProductRetailer> CompetitorProductRetailers { get; set; }
         public DbSet<OwnProduct> OwnProducts { get; set; }
         public DbSet<Price> Prices { get; set; }
         public DbSet<Contact> Contacts { get; set; }
@@ -268,6 +270,50 @@ namespace PricePulse.Data
                       .WithMany(u => u.UserRoles)
                       .HasForeignKey(ur => ur.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure CompetitorProductAnalysis entity (enhanced version)
+            modelBuilder.Entity<CompetitorProductAnalysis>(entity =>
+            {
+                entity.ToTable("competitor_product_analyses");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.CompetitorDomain).HasColumnName("competitor_domain");
+                entity.Property(e => e.ProductName).HasColumnName("product_name");
+                entity.Property(e => e.ProductDescription).HasColumnName("product_description");
+                entity.Property(e => e.CompetitorPrice).HasColumnName("competitor_price");
+                entity.Property(e => e.CompetitorCurrency).HasColumnName("competitor_currency");
+                entity.Property(e => e.ProductCategory).HasColumnName("product_category");
+                entity.Property(e => e.ProductImageUrl).HasColumnName("product_image_url");
+                entity.Property(e => e.CompetitorProductUrl).HasColumnName("competitor_product_url");
+                entity.Property(e => e.DiscoveredAt).HasColumnName("discovered_at");
+                entity.Property(e => e.LastUpdated).HasColumnName("last_updated");
+                entity.Property(e => e.IsActive).HasColumnName("is_active");
+
+                entity.HasMany(cp => cp.Retailers)
+                      .WithOne(r => r.CompetitorProductAnalysis)
+                      .HasForeignKey(r => r.CompetitorProductAnalysisId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure CompetitorProductRetailer entity
+            modelBuilder.Entity<CompetitorProductRetailer>(entity =>
+            {
+                entity.ToTable("competitor_product_retailers");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.CompetitorProductAnalysisId).HasColumnName("competitor_product_analysis_id");
+                entity.Property(e => e.RetailerName).HasColumnName("retailer_name");
+                entity.Property(e => e.RetailerUrl).HasColumnName("retailer_url");
+                entity.Property(e => e.ProductUrl).HasColumnName("product_url");
+                entity.Property(e => e.Price).HasColumnName("price");
+                entity.Property(e => e.Currency).HasColumnName("currency");
+                entity.Property(e => e.Availability).HasColumnName("availability");
+                entity.Property(e => e.ShippingInfo).HasColumnName("shipping_info");
+                entity.Property(e => e.Rating).HasColumnName("rating");
+                entity.Property(e => e.ReviewsCount).HasColumnName("reviews_count");
+                entity.Property(e => e.LastUpdated).HasColumnName("last_updated");
+                entity.Property(e => e.IsActive).HasColumnName("is_active");
             });
         }
     }

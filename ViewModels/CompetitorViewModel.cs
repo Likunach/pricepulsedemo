@@ -32,12 +32,12 @@ namespace PricePulse.ViewModels
 
     public class ManualCompetitor
     {
-        [Required(ErrorMessage = "Competitor name is required")]
+        public int CompetitorId { get; set; }
+        
         [Display(Name = "Competitor Name")]
         public string Name { get; set; } = string.Empty;
         
         [Required(ErrorMessage = "Website URL is required")]
-        [Url(ErrorMessage = "Please enter a valid URL")]
         [Display(Name = "Website URL")]
         public string Website { get; set; } = string.Empty;
         
@@ -72,5 +72,19 @@ namespace PricePulse.ViewModels
         public string CompetitorDomain { get; set; } = string.Empty;
         public CompetitorAnalysisResult AnalysisResult { get; set; } = new();
         public List<DiscoveredProduct> Products { get; set; } = new();
+    }
+
+    public class CompetitorProfileViewModel
+    {
+        public int CompetitorId { get; set; }
+        public string CompetitorName { get; set; } = string.Empty;
+        public string CompetitorWebsite { get; set; } = string.Empty;
+        public string? CompetitorDescription { get; set; }
+        public DateTime AddedDate { get; set; }
+        public DateTime LastAnalyzed { get; set; }
+        public int TotalProductsDiscovered { get; set; }
+        public int ActiveProducts { get; set; }
+        public List<CompetitorProductAnalysis> HistoricalProducts { get; set; } = new();
+        public bool IsAnalyzing { get; set; } = false;
     }
 }

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Caching.Memory;
 using PricePulse.Models;
 using PricePulse.ViewModels;
+using PricePulse.DAOs.Interfaces;
+using System.Text.Json;
 
 namespace PricePulse.Services
 {
@@ -9,25 +11,29 @@ namespace PricePulse.Services
         Task<List<CompetitorAnalysisResult>> AnalyzeCompetitorProductsAsync(string domain, List<CompetitorInfo> competitors);
         Task<CompetitorAnalysisResult> AnalyzeSingleCompetitorAsync(string competitorDomain);
         Task<List<DiscoveredProduct>> GetCompetitorProductsAsync(string competitorDomain);
+        Task<CompetitorProductAnalysisResult> AnalyzeCompetitorWithRetailersAsync(string competitorDomain, string companyLocation = "United States");
+        Task<List<CompetitorProductAnalysis>> GetCompetitorProductsFromDatabaseAsync(string competitorDomain);
+        Task SaveCompetitorProductsAsync(string competitorDomain, List<CompetitorProductAnalysis> products);
+        Task<CompetitorProductAnalysisResult> DiscoverProductsUsingDiscoveryAsync(string competitorDomain, string companyLocation = "United States");
     }
 
     public class CompetitorProductAnalysisService : ICompetitorProductAnalysisService
     {
-        private readonly ISemrushService _semrushService;
         private readonly IOpenAIService _openAIService;
         private readonly IMemoryCache _cache;
         private readonly ILogger<CompetitorProductAnalysisService> _logger;
+        private readonly ICompetitorProductAnalysisDAO _competitorProductAnalysisDAO;
 
         public CompetitorProductAnalysisService(
-            ISemrushService semrushService,
             IOpenAIService openAIService,
             IMemoryCache cache,
-            ILogger<CompetitorProductAnalysisService> logger)
+            ILogger<CompetitorProductAnalysisService> logger,
+            ICompetitorProductAnalysisDAO competitorProductAnalysisDAO)
         {
-            _semrushService = semrushService;
             _openAIService = openAIService;
             _cache = cache;
             _logger = logger;
+            _competitorProductAnalysisDAO = competitorProductAnalysisDAO;
         }
 
         public async Task<List<CompetitorAnalysisResult>> AnalyzeCompetitorProductsAsync(string domain, List<CompetitorInfo> competitors)
@@ -127,6 +133,315 @@ namespace PricePulse.Services
             var result = await AnalyzeSingleCompetitorAsync(competitorDomain);
             return result.Products ?? new List<DiscoveredProduct>();
         }
+
+        public async Task<CompetitorProductAnalysisResult> AnalyzeCompetitorWithRetailersAsync(string competitorDomain, string companyLocation = "United States")
+        {
+            var cacheKey = $"competitor_retailers_{competitorDomain}_{companyLocation}";
+            
+            if (_cache.TryGetValue(cacheKey, out CompetitorProductAnalysisResult? cachedResult))
+            {
+                Console.WriteLine($"=== CACHE HIT for competitor retailers: {competitorDomain} ===");
+                return cachedResult ?? new CompetitorProductAnalysisResult();
+            }
+
+            try
+            {
+                Console.WriteLine($"=== ANALYZING COMPETITOR WITH RETAILERS: {competitorDomain} ===");
+                
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                
+                // Create the enhanced prompt for competitor analysis with retailers
+                var prompt = $@"Analyze the website at https://{competitorDomain} and identify all products. For each product found, find the top 20 retailers that sell the same or similar products within {companyLocation}.
+
+Return the results in JSON format with the following structure:
+
+{{
+  ""competitor_analysis"": {{
+    ""competitor_url"": ""https://{competitorDomain}"",
+    ""analysis_date"": ""{DateTime.UtcNow:yyyy-MM-dd}"",
+    ""total_products_found"": number,
+    ""products"": [
+      {{
+        ""product_name"": ""string"",
+        ""product_description"": ""string"", 
+        ""competitor_price"": ""string"",
+        ""competitor_currency"": ""string"",
+        ""product_category"": ""string"",
+        ""product_image_url"": ""string"",
+        ""competitor_product_url"": ""string"",
+        ""retailers"": [
+          {{
+            ""retailer_name"": ""string"",
+            ""retailer_url"": ""string"",
+            ""product_url"": ""string"",
+            ""price"": ""string"",
+            ""currency"": ""string"",
+            ""availability"": ""string"",
+            ""shipping_info"": ""string"",
+            ""rating"": ""string"",
+            ""reviews_count"": ""string""
+          }}
+        ]
+      }}
+    ]
+  }}
+}}
+
+## Instructions:
+1. Identify ALL products on the competitor website
+2. For each product, find retailers selling the same/similar products
+3. Focus on retailers within the specified location: {companyLocation}
+4. Include major retailers like Amazon, eBay, Walmart, Target, etc.
+5. Provide accurate pricing information where available
+6. Include product URLs for each retailer
+7. If a product is not found at retailers, still include it with empty retailers array
+8. Ensure all prices are in the same currency for comparison
+9. Include availability status (In Stock, Out of Stock, Limited Stock)
+10. Provide shipping information where available";
+
+                var response = await _openAIService.GetCompletionAsync(prompt);
+                
+                stopwatch.Stop();
+                
+                var result = new CompetitorProductAnalysisResult
+                {
+                    CompetitorDomain = competitorDomain,
+                    Success = true,
+                    AnalysisTime = stopwatch.ElapsedMilliseconds,
+                    AnalyzedAt = DateTime.UtcNow,
+                    CompanyLocation = companyLocation
+                };
+
+                // Parse the JSON response
+                try
+                {
+                    var jsonResponse = JsonSerializer.Deserialize<CompetitorAnalysisResponse>(response);
+                    if (jsonResponse?.CompetitorAnalysis != null)
+                    {
+                        result.TotalProducts = jsonResponse.CompetitorAnalysis.TotalProductsFound;
+                        result.Products = jsonResponse.CompetitorAnalysis.Products.Select(p => new CompetitorProductAnalysis
+                        {
+                            CompetitorDomain = competitorDomain,
+                            ProductName = p.ProductName,
+                            ProductDescription = p.ProductDescription,
+                            CompetitorPrice = p.CompetitorPrice,
+                            CompetitorCurrency = p.CompetitorCurrency,
+                            ProductCategory = p.ProductCategory,
+                            ProductImageUrl = p.ProductImageUrl,
+                            CompetitorProductUrl = p.CompetitorProductUrl,
+                            DiscoveredAt = DateTime.UtcNow,
+                            LastUpdated = DateTime.UtcNow,
+                            IsActive = true,
+                            Retailers = p.Retailers.Select(r => new CompetitorProductRetailer
+                            {
+                                RetailerName = r.RetailerName,
+                                RetailerUrl = r.RetailerUrl,
+                                ProductUrl = r.ProductUrl,
+                                Price = r.Price,
+                                Currency = r.Currency,
+                                Availability = r.Availability,
+                                ShippingInfo = r.ShippingInfo,
+                                Rating = r.Rating,
+                                ReviewsCount = r.ReviewsCount,
+                                LastUpdated = DateTime.UtcNow,
+                                IsActive = true
+                            }).ToList()
+                        }).ToList();
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogError(ex, "Error parsing competitor analysis JSON response");
+                    result.Success = false;
+                    result.ErrorMessage = "Failed to parse analysis results";
+                }
+
+                // Cache for 6 hours
+                _cache.Set(cacheKey, result, TimeSpan.FromHours(6));
+                
+                Console.WriteLine($"=== COMPETITOR RETAILER ANALYSIS COMPLETED: {competitorDomain} - {result.TotalProducts} products in {stopwatch.ElapsedMilliseconds}ms ===");
+                
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error analyzing competitor with retailers for {Domain}", competitorDomain);
+                return new CompetitorProductAnalysisResult
+                {
+                    CompetitorDomain = competitorDomain,
+                    Success = false,
+                    ErrorMessage = ex.Message,
+                    Products = new List<CompetitorProductAnalysis>(),
+                    AnalyzedAt = DateTime.UtcNow
+                };
+            }
+        }
+
+        public async Task<List<CompetitorProductAnalysis>> GetCompetitorProductsFromDatabaseAsync(string competitorDomain)
+        {
+            return await _competitorProductAnalysisDAO.GetByCompetitorDomainAsync(competitorDomain);
+        }
+
+        public async Task SaveCompetitorProductsAsync(string competitorDomain, List<CompetitorProductAnalysis> products)
+        {
+            foreach (var product in products)
+            {
+                product.CompetitorDomain = competitorDomain;
+                product.DiscoveredAt = DateTime.UtcNow;
+                product.LastUpdated = DateTime.UtcNow;
+                product.IsActive = true;
+
+                foreach (var retailer in product.Retailers)
+                {
+                    retailer.LastUpdated = DateTime.UtcNow;
+                    retailer.IsActive = true;
+                }
+
+                await _competitorProductAnalysisDAO.CreateAsync(product);
+            }
+        }
+
+        public async Task<CompetitorProductAnalysisResult> DiscoverProductsUsingDiscoveryAsync(string competitorDomain, string companyLocation = "United States")
+        {
+            var cacheKey = $"competitor_discovery_pipeline_{competitorDomain}_{companyLocation}";
+            if (_cache.TryGetValue(cacheKey, out CompetitorProductAnalysisResult? cached))
+            {
+                Console.WriteLine($"=== CACHE HIT for discovery pipeline: {competitorDomain} ===");
+                return cached ?? new CompetitorProductAnalysisResult { CompetitorDomain = competitorDomain, Success = true };
+            }
+
+            try
+            {
+                var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                var websiteUrl = competitorDomain.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                 competitorDomain.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+                                 ? competitorDomain
+                                 : $"https://{competitorDomain}";
+                var discovered = await _openAIService.DiscoverProductsAsync(websiteUrl, companyLocation);
+                stopwatch.Stop();
+
+                var mapped = MapDiscoveredProducts(competitorDomain, discovered);
+
+                var result = new CompetitorProductAnalysisResult
+                {
+                    CompetitorDomain = competitorDomain,
+                    Success = true,
+                    Products = mapped,
+                    TotalProducts = mapped.Count,
+                    AnalysisTime = stopwatch.ElapsedMilliseconds,
+                    AnalyzedAt = DateTime.UtcNow,
+                    CompanyLocation = companyLocation
+                };
+
+                _cache.Set(cacheKey, result, TimeSpan.FromHours(6));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in discovery pipeline for {Domain}", competitorDomain);
+                return new CompetitorProductAnalysisResult
+                {
+                    CompetitorDomain = competitorDomain,
+                    Success = false,
+                    ErrorMessage = ex.Message,
+                    Products = new List<CompetitorProductAnalysis>(),
+                    AnalyzedAt = DateTime.UtcNow,
+                    CompanyLocation = companyLocation
+                };
+            }
+        }
+
+        private static List<CompetitorProductAnalysis> MapDiscoveredProducts(string competitorDomain, List<DiscoveredProduct> discovered)
+        {
+            var results = new List<CompetitorProductAnalysis>();
+            foreach (var p in discovered)
+            {
+                var analysis = new CompetitorProductAnalysis
+                {
+                    CompetitorDomain = competitorDomain,
+                    ProductName = p.ProductName ?? string.Empty,
+                    CompetitorPrice = p.OurPrice?.ToString(),
+                    // Currency and URLs are not part of DiscoveredProduct schema; leave null
+                    ProductDescription = null,
+                    CompetitorCurrency = null,
+                    ProductCategory = null,
+                    ProductImageUrl = null,
+                    CompetitorProductUrl = null,
+                    DiscoveredAt = DateTime.UtcNow,
+                    LastUpdated = DateTime.UtcNow,
+                    IsActive = true,
+                    Retailers = (p.CompetitorPrices ?? new List<CompetitorPrice>()).Select(r => new CompetitorProductRetailer
+                    {
+                        RetailerName = r.RetailerName ?? string.Empty,
+                        RetailerUrl = r.Url,
+                        ProductUrl = r.Url,
+                        Price = r.Price?.ToString(),
+                        Currency = null,
+                        Availability = null,
+                        ShippingInfo = null,
+                        Rating = null,
+                        ReviewsCount = null,
+                        LastUpdated = DateTime.UtcNow,
+                        IsActive = true
+                    }).ToList()
+                };
+
+                results.Add(analysis);
+            }
+
+            return results;
+        }
+    }
+
+    // Response models for JSON deserialization
+    public class CompetitorAnalysisResponse
+    {
+        public CompetitorAnalysisData CompetitorAnalysis { get; set; } = new();
+    }
+
+    public class CompetitorAnalysisData
+    {
+        public string CompetitorUrl { get; set; } = string.Empty;
+        public string AnalysisDate { get; set; } = string.Empty;
+        public int TotalProductsFound { get; set; }
+        public List<CompetitorProductData> Products { get; set; } = new();
+    }
+
+    public class CompetitorProductData
+    {
+        public string ProductName { get; set; } = string.Empty;
+        public string ProductDescription { get; set; } = string.Empty;
+        public string CompetitorPrice { get; set; } = string.Empty;
+        public string CompetitorCurrency { get; set; } = string.Empty;
+        public string ProductCategory { get; set; } = string.Empty;
+        public string ProductImageUrl { get; set; } = string.Empty;
+        public string CompetitorProductUrl { get; set; } = string.Empty;
+        public List<RetailerData> Retailers { get; set; } = new();
+    }
+
+    public class RetailerData
+    {
+        public string RetailerName { get; set; } = string.Empty;
+        public string RetailerUrl { get; set; } = string.Empty;
+        public string ProductUrl { get; set; } = string.Empty;
+        public string Price { get; set; } = string.Empty;
+        public string Currency { get; set; } = string.Empty;
+        public string Availability { get; set; } = string.Empty;
+        public string ShippingInfo { get; set; } = string.Empty;
+        public string Rating { get; set; } = string.Empty;
+        public string ReviewsCount { get; set; } = string.Empty;
+    }
+
+    public class CompetitorProductAnalysisResult
+    {
+        public string CompetitorDomain { get; set; } = string.Empty;
+        public bool Success { get; set; }
+        public string? ErrorMessage { get; set; }
+        public List<CompetitorProductAnalysis> Products { get; set; } = new();
+        public int TotalProducts { get; set; }
+        public long AnalysisTime { get; set; }
+        public DateTime AnalyzedAt { get; set; }
+        public string CompanyLocation { get; set; } = "United States";
     }
 
 }

@@ -42,9 +42,6 @@ namespace PricePulse.Services
         {
             _logger.LogInformation("Starting competitor monitoring cycle");
 
-            using var scope = _serviceProvider.CreateScope();
-            var semrushService = scope.ServiceProvider.GetRequiredService<ISemrushService>();
-
             try
             {
                 // Get all companies that need competitor monitoring
@@ -60,13 +57,10 @@ namespace PricePulse.Services
                     {
                         _logger.LogInformation("Monitoring competitors for company: {Domain}", company.Domain);
                         
-                        // Refresh competitor data
-                        var competitors = await semrushService.GetCompetitorsWithDetailsAsync(company.Domain);
+                        // Since we removed Semrush, we'll work with manually added competitors
+                        // For now, just log that monitoring is disabled
+                        _logger.LogInformation("Competitor monitoring disabled - Semrush service removed. Manual competitor management required.");
                         
-                        // Update database with new competitor data
-                        await UpdateCompetitorData(company.Domain, competitors);
-                        
-                        _logger.LogInformation("Updated {Count} competitors for {Domain}", competitors.Count, company.Domain);
                     }
                     catch (Exception ex)
                     {

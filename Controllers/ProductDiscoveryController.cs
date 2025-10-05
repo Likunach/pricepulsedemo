@@ -4,6 +4,7 @@ using System.Security.Claims;
 using PricePulse.DAOs.Interfaces;
 using PricePulse.Services;
 using PricePulse.ViewModels;
+using PricePulse.Models;
 
 namespace PricePulse.Controllers
 {
@@ -61,6 +62,118 @@ namespace PricePulse.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> DiscoverCompetitors(ProductDiscoveryViewModel model)
+        {
+            Console.WriteLine("=== DISCOVER COMPETITORS POST CALLED ===");
+            Console.WriteLine($"=== ModelState.IsValid: {ModelState.IsValid} ===");
+            
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("=== MODEL STATE INVALID, RETURNING TO INDEX ===");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"=== VALIDATION ERROR: {error.ErrorMessage} ===");
+                }
+                return View("Index", model);
+            }
+
+            if (!(User?.Identity?.IsAuthenticated ?? false))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                // Normalize URL to include scheme if missing
+                if (!string.IsNullOrWhiteSpace(model.WebsiteUrl))
+                {
+                    model.WebsiteUrl = NormalizeUrl(model.WebsiteUrl);
+                }
+
+                Console.WriteLine($"=== STARTING COMPETITOR DISCOVERY FOR: {model.WebsiteUrl} ===");
+                _logger.LogInformation("Starting competitor discovery for {Url}", model.WebsiteUrl);
+                var startTime = DateTime.UtcNow;
+
+                var discoveredCompetitors = await _openAIService.DiscoverCompetitorsAsync(
+                    model.WebsiteUrl, 
+                    model.CompanyLocation ?? "United States"
+                );
+
+                var endTime = DateTime.UtcNow;
+                var duration = (endTime - startTime).TotalSeconds;
+
+                Console.WriteLine($"=== COMPETITOR DISCOVERY COMPLETED IN {duration:F1} SECONDS ===");
+                Console.WriteLine($"=== FOUND {discoveredCompetitors.Count} COMPETITORS ===");
+                
+                // Debug: Log first few competitors
+                for (int i = 0; i < Math.Min(3, discoveredCompetitors.Count); i++)
+                {
+                    var comp = discoveredCompetitors[i];
+                    Console.WriteLine($"=== COMPETITOR {i + 1}: {comp.CompanyName} - {comp.WebsiteUrl} ===");
+                }
+
+                var resultModel = new CompetitorDiscoveryResultViewModel
+                {
+                    WebsiteUrl = model.WebsiteUrl,
+                    CompanyLocation = model.CompanyLocation ?? "United States",
+                    DiscoveredCompetitors = discoveredCompetitors,
+                    DiscoveryTime = duration,
+                    DiscoveredAt = endTime
+                };
+
+                TempData["Success"] = $"Successfully discovered {discoveredCompetitors.Count} competitors in {duration:F1} seconds!";
+                return View("CompetitorResults", resultModel);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"=== ERROR IN COMPETITOR DISCOVERY: {ex.Message} ===");
+                _logger.LogError(ex, "Error during competitor discovery for {Url}", model.WebsiteUrl);
+                TempData["Error"] = "An error occurred during competitor discovery. Please try again.";
+                return View("Index", model);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveCompetitors(List<DiscoveredCompetitor> competitors)
+        {
+            try
+            {
+                if (competitors == null || !competitors.Any())
+                {
+                    TempData["Error"] = "No competitors selected to save.";
+                    return RedirectToAction("Index");
+                }
+
+                // Save competitors to database
+                foreach (var competitor in competitors)
+                {
+                    var competitorEntity = new Competitor
+                    {
+                        CompetitorName = competitor.CompanyName.Length > 50 ? competitor.CompanyName.Substring(0, 47) + "..." : competitor.CompanyName,
+                        CompetitorWebsite = competitor.WebsiteUrl.Length > 50 ? competitor.WebsiteUrl.Substring(0, 47) + "..." : competitor.WebsiteUrl,
+                        CompetitorCompanyProfile = $"{competitor.Description} | {competitor.CompetitionReason}".Length > 50 
+                            ? $"{competitor.Description} | {competitor.CompetitionReason}".Substring(0, 47) + "..." 
+                            : $"{competitor.Description} | {competitor.CompetitionReason}",
+                        CompanyProfileId = 1 // TODO: Get from current user's company profile
+                    };
+                    
+                    Console.WriteLine($"=== SAVING COMPETITOR: {competitor.CompanyName} - {competitor.WebsiteUrl} ===");
+                    await _competitorDAO.CreateAsync(competitorEntity);
+                    Console.WriteLine($"=== SAVED COMPETITOR: {competitor.CompanyName} ===");
+                }
+
+                TempData["Success"] = $"Successfully saved {competitors.Count} competitors!";
+                return RedirectToAction("Index", "Competitor");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving competitors");
+                TempData["Error"] = "An error occurred while saving competitors. Please try again.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> DiscoverProducts(ProductDiscoveryViewModel model)
         {
             Console.WriteLine("=== DISCOVER PRODUCTS POST CALLED ===");
@@ -84,11 +197,9 @@ namespace PricePulse.Controllers
             try
             {
                 // Normalize URL to include scheme if missing
-                if (!string.IsNullOrWhiteSpace(model.WebsiteUrl) &&
-                    !model.WebsiteUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
-                    !model.WebsiteUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrWhiteSpace(model.WebsiteUrl))
                 {
-                    model.WebsiteUrl = "https://" + model.WebsiteUrl.Trim();
+                    model.WebsiteUrl = NormalizeUrl(model.WebsiteUrl);
                 }
 
                 Console.WriteLine($"=== STARTING PRODUCT DISCOVERY FOR: {model.WebsiteUrl} ===");
@@ -458,6 +569,42 @@ namespace PricePulse.Controllers
                 _logger.LogError(ex, "Error getting price history for product {ProductId}", productId);
                 return Json(new List<object>());
             }
+        }
+
+        private string NormalizeUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return url;
+
+            url = url.Trim();
+
+            // If it already has a scheme, return as is
+            if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                return url;
+            }
+
+            // Handle different formats
+            if (url.StartsWith("www.", StringComparison.OrdinalIgnoreCase))
+            {
+                return "https://" + url;
+            }
+
+            // For domain names like "apple.com", add "www." and "https://"
+            if (url.Contains(".") && !url.Contains("/"))
+            {
+                return "https://www." + url;
+            }
+
+            // For paths like "apple.com/products", add "https://www."
+            if (url.Contains(".") && url.Contains("/"))
+            {
+                return "https://www." + url;
+            }
+
+            // Default fallback
+            return "https://" + url;
         }
     }
 }

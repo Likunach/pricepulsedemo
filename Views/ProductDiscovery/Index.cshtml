@@ -24,6 +24,7 @@
                         "accent-1": "#f94037",
                         "accent-2": "#0cb8ca",
                         "background-light": "#eff9f2",
+                        "primary-red": "#F94239",
                     },
                     fontFamily: {
                         "display": ["Inter", "sans-serif"]
@@ -63,20 +64,15 @@
             <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-24">
                     <div class="flex items-center space-x-3">
-                        <div class="p-2 bg-primary rounded-full">
-                            <img src="/images/logo.png" alt="PricePulse logo" class="h-8 w-8" />
-                        </div>
-                        <h1 class="text-3xl font-bold text-gray-900">PricePulse</h1>
+                        <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-auto" />
                     </div>
                     <nav class="hidden md:flex items-center space-x-10">
-                        <a class="text-base font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Dashboard</a>
-                        <a class="text-base font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("MyProducts", "ProductDiscovery")">My Products</a>
+                        <a class="text-base font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Home</a>
                     </nav>
                     <div class="flex items-center space-x-4">
                         @if (User?.Identity?.IsAuthenticated == true)
                         {
                             <a class="hidden sm:inline-block text-base font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("Logout", "Account")">Logout</a>
-                            <a class="bg-primary text-white px-6 py-3 rounded-full text-base font-semibold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-lg shadow-primary/30" href="@Url.Action("Index", "ProductDiscovery")">Dashboard</a>
                         }
                         else
                         {
@@ -117,22 +113,30 @@
                     }
                     
                     <div class="mt-12">
-                        <form action="@Url.Action("DiscoverProducts", "ProductDiscovery")" class="space-y-4" method="POST">
+                        <form id="discoveryForm" class="space-y-4" method="POST">
                             <div class="relative group">
                                 <span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-accent-1 text-2xl">link</span>
                                 <input class="w-full pl-16 pr-6 py-5 bg-white border-2 border-transparent rounded-lg text-lg focus:ring-4 focus:ring-accent-1/50 focus:border-accent-1 transition-all shadow-md hover:shadow-lg" 
-                                       id="website-url" name="WebsiteUrl" placeholder="Enter website URL (e.g., example.com)" type="url" value="@Model.WebsiteUrl" required/>
+                                       id="website-url" name="WebsiteUrl" placeholder="Enter website URL (e.g., apple.com)" type="url" value="@Model.WebsiteUrl" required/>
                             </div>
                             <div class="relative group">
                                 <span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-accent-2 text-2xl">tune</span>
                                 <input class="w-full pl-16 pr-6 py-5 bg-white border-2 border-transparent rounded-lg text-lg focus:ring-4 focus:ring-accent-2/50 focus:border-accent-2 transition-all shadow-md hover:shadow-lg" 
-                                       id="specifications" name="CompanyLocation" placeholder="Optional Specifications (e.g., color, size)" type="text" value="@Model.CompanyLocation"/>
+                                       id="specifications" name="CompanyLocation" placeholder="Company Location (e.g., United States)" type="text" value="@Model.CompanyLocation"/>
                             </div>
-                            <div>
-                                <button class="w-full flex items-center justify-center bg-primary text-white px-8 py-5 rounded-lg text-xl font-bold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-xl shadow-primary/30" type="submit" id="discoverBtn">
-                                    <span class="material-symbols-outlined mr-3 text-2xl">psychology</span>
-                                    <span id="btnText">Let's Go</span>
-                                    <span id="loadingSpinner" style="display: none;">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <button type="button" onclick="discoverProducts()" class="flex items-center justify-center bg-primary text-white px-8 py-5 rounded-lg text-xl font-bold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-xl shadow-primary/30" id="discoverProductsBtn">
+                                    <span class="material-symbols-outlined mr-3 text-2xl">inventory_2</span>
+                                    <span id="productsBtnText">Discover Products</span>
+                                    <span id="productsLoadingSpinner" style="display: none;">
+                                        <span class="material-symbols-outlined mr-3 text-2xl animate-spin">autorenew</span>
+                                        Analyzing...
+                                    </span>
+                                </button>
+                                <button type="button" onclick="discoverCompetitors()" class="flex items-center justify-center bg-primary-red text-white px-8 py-5 rounded-lg text-xl font-bold hover:bg-primary-red/90 transition-transform transform hover:scale-105 shadow-xl shadow-primary-red/30" id="discoverCompetitorsBtn">
+                                    <span class="material-symbols-outlined mr-3 text-2xl">business</span>
+                                    <span id="competitorsBtnText">Find Competitors</span>
+                                    <span id="competitorsLoadingSpinner" style="display: none;">
                                         <span class="material-symbols-outlined mr-3 text-2xl animate-spin">autorenew</span>
                                         Analyzing...
                                     </span>
@@ -161,59 +165,130 @@
     
     <!-- AI Processing Overlay -->
     <div class="fixed inset-0 bg-background-light/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center text-center p-8 hidden" id="processingOverlay">
-        <div class="flex items-center space-x-4 text-3xl font-bold text-primary">
-            <div class="relative h-12 w-12">
-                <div class="absolute h-full w-full rounded-full bg-accent-1 opacity-75 animate-ping"></div>
-                <div class="relative flex h-full w-full items-center justify-center rounded-full bg-accent-1">
-                    <span class="material-symbols-outlined text-white text-3xl">hub</span>
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div class="flex items-center justify-center space-x-4 text-2xl font-bold text-primary mb-4">
+                <div class="relative h-12 w-12">
+                    <div class="absolute h-full w-full rounded-full bg-accent-1 opacity-75 animate-ping"></div>
+                    <div class="relative flex h-full w-full items-center justify-center rounded-full bg-accent-1">
+                        <span class="material-symbols-outlined text-white text-2xl">hub</span>
+                    </div>
                 </div>
+                <span id="loadingTitle">AI Processing...</span>
             </div>
-            <span>AI Processing...</span>
+            <p id="loadingDescription" class="text-gray-600 mb-6">Our digital brain is hard at work. This should just take a moment.</p>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div id="progressBar" class="bg-gradient-to-r from-accent-1 to-accent-2 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+            </div>
+            <div id="progressText" class="mt-3 text-sm font-medium text-gray-500">Initializing... 0%</div>
         </div>
-        <p class="mt-6 text-lg text-gray-600">Our digital brain is hard at work. This should just take a moment.</p>
-        <div class="w-full max-w-lg bg-gray-200 rounded-full h-3 mt-8 overflow-hidden">
-            <div class="bg-gradient-to-r from-accent-1 to-accent-2 h-3 rounded-full animate-pulse" style="width: 65%"></div>
-        </div>
-        <div class="mt-3 text-sm font-medium text-gray-500">Finding Magic... 65%</div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            const discoverBtn = document.getElementById('discoverBtn');
-            const btnText = document.getElementById('btnText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            const processingOverlay = document.getElementById('processingOverlay');
+        function discoverProducts() {
+            showLoadingOverlay('Discovering Products', 'Scanning website for products...');
+            const form = document.getElementById('discoveryForm');
+            form.action = '@Url.Action("DiscoverProducts", "ProductDiscovery")';
             
-            form.addEventListener('submit', function(e) {
-                console.log('=== FORM SUBMISSION STARTED ===');
-                
-                // Show loading state
-                discoverBtn.disabled = true;
-                btnText.style.display = 'none';
-                loadingSpinner.style.display = 'inline';
-                
-                // Show processing overlay
-                processingOverlay.classList.remove('hidden');
-                
-                // Simulate progress
-                let progress = 0;
-                const progressBar = processingOverlay.querySelector('.bg-gradient-to-r');
-                const progressText = processingOverlay.querySelector('.text-gray-500');
-                
-                const progressInterval = setInterval(() => {
-                    progress += Math.random() * 15;
+            // Update button state
+            const btn = document.getElementById('discoverProductsBtn');
+            const btnText = document.getElementById('productsBtnText');
+            const btnSpinner = document.getElementById('productsLoadingSpinner');
+            
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline';
+            
+            form.submit();
+        }
+
+        function discoverCompetitors() {
+            showLoadingOverlay('Finding Competitors', 'Analyzing market landscape...');
+            const form = document.getElementById('discoveryForm');
+            form.action = '@Url.Action("DiscoverCompetitors", "ProductDiscovery")';
+            
+            // Update button state
+            const btn = document.getElementById('discoverCompetitorsBtn');
+            const btnText = document.getElementById('competitorsBtnText');
+            const btnSpinner = document.getElementById('competitorsLoadingSpinner');
+            
+            btn.disabled = true;
+            btnText.style.display = 'none';
+            btnSpinner.style.display = 'inline';
+            
+            form.submit();
+        }
+
+        function showLoadingOverlay(title, description) {
+            const processingOverlay = document.getElementById('processingOverlay');
+            const titleElement = document.getElementById('loadingTitle');
+            const descriptionElement = document.getElementById('loadingDescription');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            if (titleElement) titleElement.textContent = title;
+            if (descriptionElement) descriptionElement.textContent = description;
+            
+            processingOverlay.classList.remove('hidden');
+            
+            // Reset progress
+            let progress = 0;
+            if (progressBar) progressBar.style.width = '0%';
+            if (progressText) progressText.textContent = 'Initializing... 0%';
+            
+            // Simulate progress with different stages
+            const stages = [
+                { progress: 15, text: 'Connecting to AI...' },
+                { progress: 30, text: 'Analyzing website...' },
+                { progress: 50, text: 'Processing data...' },
+                { progress: 70, text: 'Generating results...' },
+                { progress: 85, text: 'Finalizing...' },
+                { progress: 95, text: 'Almost done...' }
+            ];
+            
+            let currentStage = 0;
+            
+            const progressInterval = setInterval(() => {
+                if (currentStage < stages.length) {
+                    progress = stages[currentStage].progress;
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    if (progressText) progressText.textContent = `${stages[currentStage].text} ${progress}%`;
+                    currentStage++;
+                } else {
+                    // Random increment after stages
+                    progress += Math.random() * 3;
                     if (progress > 95) progress = 95;
                     
-                    progressBar.style.width = progress + '%';
-                    progressText.textContent = `Finding Magic... ${Math.round(progress)}%`;
-                }, 500);
-                
-                // Clear interval after 10 seconds (form should have submitted by then)
-                setTimeout(() => {
-                    clearInterval(progressInterval);
-                }, 10000);
-            });
+                    if (progressBar) progressBar.style.width = progress + '%';
+                    if (progressText) progressText.textContent = `Processing... ${Math.round(progress)}%`;
+                }
+            }, 800);
+            
+            // Clear interval after 15 seconds (form should have submitted by then)
+            setTimeout(() => {
+                clearInterval(progressInterval);
+            }, 15000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Reset button states on page load
+            const discoverProductsBtn = document.getElementById('discoverProductsBtn');
+            const discoverCompetitorsBtn = document.getElementById('discoverCompetitorsBtn');
+            const productsBtnText = document.getElementById('productsBtnText');
+            const productsLoadingSpinner = document.getElementById('productsLoadingSpinner');
+            const competitorsBtnText = document.getElementById('competitorsBtnText');
+            const competitorsLoadingSpinner = document.getElementById('competitorsLoadingSpinner');
+            
+            if (discoverProductsBtn) {
+                discoverProductsBtn.disabled = false;
+                if (productsBtnText) productsBtnText.style.display = 'inline';
+                if (productsLoadingSpinner) productsLoadingSpinner.style.display = 'none';
+            }
+            
+            if (discoverCompetitorsBtn) {
+                discoverCompetitorsBtn.disabled = false;
+                if (competitorsBtnText) competitorsBtnText.style.display = 'inline';
+                if (competitorsLoadingSpinner) competitorsLoadingSpinner.style.display = 'none';
+            }
         });
     </script>
 </body>

@@ -67,21 +67,12 @@
         <aside class="w-64 flex-shrink-0 bg-white p-6 flex flex-col justify-between border-r border-gray-200">
             <div>
                 <div class="flex items-center space-x-3 mb-10">
-                    <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-10" />
-                    <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                    <img src="/images/logo.png" alt="PricePulse logo" class="logo" />
                 </div>
                 <nav class="space-y-2">
-                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-primary/10 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">
-                        <span class="material-symbols-outlined">dashboard</span>
-                        <span>Dashboard</span>
-                    </a>
                     <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg bg-primary text-white transition-colors" href="@Url.Action("Index", "ProductDiscovery")">
                         <span class="material-symbols-outlined">travel_explore</span>
                         <span>Discovery</span>
-                    </a>
-                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-primary/10 hover:text-primary transition-colors" href="@Url.Action("MyProducts", "ProductDiscovery")">
-                        <span class="material-symbols-outlined">inventory_2</span>
-                        <span>My Products</span>
                     </a>
                 </nav>
             </div>
@@ -101,10 +92,6 @@
                         <p class="text-sm text-gray-500">Discover new products from competitor websites based on your prompt.</p>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <a href="@Url.Action("MyProducts", "ProductDiscovery")" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors flex items-center space-x-2">
-                            <span class="material-symbols-outlined text-sm">inventory_2</span>
-                            <span>View My Products</span>
-                        </a>
                         <form method="post" action="@Url.Action("ConfirmProducts", "ProductDiscovery")" class="inline" id="saveProductsForm">
                             <input type="hidden" name="WebsiteUrl" value="@Model.WebsiteUrl" />
                             <input type="hidden" name="CompanyLocation" value="@Model.CompanyLocation" />

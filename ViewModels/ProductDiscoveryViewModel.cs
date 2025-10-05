@@ -6,7 +6,6 @@ namespace PricePulse.ViewModels
     public class ProductDiscoveryViewModel
     {
         [Required]
-        [Url]
         [Display(Name = "Company Website URL")]
         public string WebsiteUrl { get; set; } = string.Empty;
 
