@@ -1,0 +1,355 @@
+@model PricePulse.ViewModels.ProductDiscoveryViewModel
+@{
+    ViewData["Title"] = "PricePulse - Discovered Products";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5d288a",
+                        "accent": "#f94037",
+                        "background-light": "#eff9f2",
+                        "secondary-accent": "#0cb8ca"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #5d288a;
+            border-radius: 20px;
+            border: 3px solid transparent;
+        }
+        .form-checkbox:checked {
+            color: #5d288a;
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-gray-800">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 flex-shrink-0 bg-white p-6 flex flex-col justify-between border-r border-gray-200">
+            <div>
+                <div class="flex items-center space-x-3 mb-10">
+                    <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-10" />
+                    <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                </div>
+                <nav class="space-y-2">
+                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg bg-primary text-white transition-colors" href="@Url.Action("Index", "ProductDiscovery")">
+                        <span class="material-symbols-outlined">travel_explore</span>
+                        <span>Discovery</span>
+                    </a>
+                    <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-primary/10 hover:text-primary transition-colors" href="@Url.Action("MyProducts", "ProductDiscovery")">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                        <span>My Products</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="space-y-2">
+                <a class="flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg text-gray-600 hover:bg-primary/10 hover:text-primary transition-colors" href="@Url.Action("Info", "Account")">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>Account</span>
+                </a>
+            </div>
+        </aside>
+        
+        <main class="flex-1 flex flex-col overflow-y-auto custom-scrollbar">
+            <div class="sticky top-0 bg-background-light/90 backdrop-blur-sm z-10 p-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">AI Product Discovery</h2>
+                        <p class="text-sm text-gray-500">Discover new products from competitor websites based on your prompt.</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <a href="@Url.Action("MyProducts", "ProductDiscovery")" class="text-sm font-medium text-gray-600 hover:text-primary transition-colors flex items-center space-x-2">
+                            <span class="material-symbols-outlined text-sm">inventory_2</span>
+                            <span>View My Products</span>
+                        </a>
+                        <form method="post" action="@Url.Action("ConfirmProducts", "ProductDiscovery")" class="inline" id="saveProductsForm">
+                            <input type="hidden" name="WebsiteUrl" value="@Model.WebsiteUrl" />
+                            <input type="hidden" name="CompanyLocation" value="@Model.CompanyLocation" />
+                            <div id="selectedProductsContainer"></div>
+                            <button class="bg-accent text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-accent/90 transition-transform transform hover:scale-105 shadow-lg flex items-center space-x-2" type="button" onclick="saveSelectedProducts()">
+                                <span class="material-symbols-outlined">add</span>
+                                <span>Save Products</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+                        <input class="w-full bg-white border border-gray-300 rounded-full pl-12 pr-32 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition" 
+                               placeholder="e.g., 'ergonomic office chairs with mesh back'" type="text" value="@Model.SearchPrompt" readonly />
+                        <button class="absolute right-3 top-1/2 -translate-y-1/2 bg-gray-200 text-gray-800 px-4 py-1.5 rounded-full text-sm font-semibold hover:bg-gray-300 transition-colors" 
+                                onclick="modifySearch()">Modify</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                @if (TempData["Error"] != null)
+                {
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        @TempData["Error"]
+                    </div>
+                }
+                
+                @if (TempData["Success"] != null)
+                {
+                    <div class="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                        @TempData["Success"]
+                    </div>
+                }
+                
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-gray-900">@(Model.DiscoveredProducts?.Count ?? 0) AI Discovered Products</h3>
+                    <div class="flex items-center space-x-6">
+                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                            <input class="h-5 w-5 rounded border-gray-400 text-primary focus:ring-primary form-checkbox" id="select-all" type="checkbox" onchange="toggleAllProducts(this)" />
+                            <label class="font-medium" for="select-all">Select All</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-600">Sort by:</span>
+                            <select class="text-sm bg-transparent border-none focus:ring-0 text-primary font-bold" onchange="sortProducts(this.value)">
+                                <option value="relevance">Relevance</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                @if (Model.DiscoveredProducts?.Any() == true)
+                {
+                    <div id="products-container" class="space-y-4">
+                        @foreach (var product in Model.DiscoveredProducts)
+                        {
+                            <div class="bg-white rounded-xl shadow-md border-2 border-transparent hover:border-primary transition-all duration-300 p-6 product-card" data-product-name="@product.ProductName">
+                                <div class="flex items-start space-x-4">
+                                    <input class="h-6 w-6 rounded border-gray-400 text-primary focus:ring-primary form-checkbox flex-shrink-0 product-checkbox mt-1" type="checkbox" />
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <h4 class="text-xl font-bold text-gray-900">@product.ProductName</h4>
+                                                <p class="text-sm text-gray-500">
+                                                    by <a href="@Model.WebsiteUrl" target="_blank" class="text-primary hover:text-primary/80 underline">@(Model.WebsiteUrl?.Replace("https://", "").Replace("http://", "").Split('/')[0] ?? "Unknown")</a>
+                                                </p>
+                                            </div>
+                                            <div class="flex items-center space-x-2">
+                                                <span class="bg-secondary-accent/10 text-secondary-accent px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1.5">
+                                                    <span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                                    <span>Confirmed Match</span>
+                                                </span>
+                                                <a href="@Model.WebsiteUrl" target="_blank" class="p-2 text-gray-400 hover:text-primary transition-colors" title="View Product">
+                                                    <span class="material-symbols-outlined">open_in_new</span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        @if (product.OurPrice.HasValue)
+                                        {
+                                            <p class="mt-3 text-sm text-gray-600">
+                                                Price: @product.OurPrice.Value.ToString("C")
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-12">
+                        <span class="material-symbols-outlined text-6xl text-gray-400 mb-4">search_off</span>
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">No Products Discovered</h2>
+                        <p class="text-gray-600 mb-6">The AI was unable to discover products from the provided website.</p>
+                        <div class="flex justify-center space-x-4">
+                            <a href="@Url.Action("Index", "ProductDiscovery")" class="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+                                Try Different Website
+                            </a>
+                            <a href="@Url.Action("ManualEntry", "ProductDiscovery")" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                                Enter Manually
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+
+    <!-- Modify Search Modal -->
+    <div id="modifyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-primary">Modify Search</h3>
+                <button onclick="closeModifyModal()" class="text-gray-500 hover:text-accent">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+            
+            <form method="post" action="@Url.Action("ModifySearch", "ProductDiscovery")" class="space-y-6">
+                <input type="hidden" name="WebsiteUrl" value="@Model.WebsiteUrl" />
+                <input type="hidden" name="CompanyLocation" value="@Model.CompanyLocation" />
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Modified Search Prompt</label>
+                    <textarea class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-0 transition-colors" 
+                              name="ModifiedPrompt" rows="4" placeholder="Enter your modified search parameters...">@Model.SearchPrompt</textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeModifyModal()" class="px-6 py-3 rounded-lg text-sm font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-primary text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-transform transform hover:scale-105 shadow-lg shadow-primary/30">
+                        Search with Modified Parameters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function modifySearch() {
+            document.getElementById('modifyModal').classList.remove('hidden');
+        }
+        
+        function closeModifyModal() {
+            document.getElementById('modifyModal').classList.add('hidden');
+        }
+        
+        function toggleAllProducts(checkbox) {
+            const productCheckboxes = document.querySelectorAll('.product-checkbox');
+            productCheckboxes.forEach(cb => cb.checked = checkbox.checked);
+        }
+        
+        function saveSelectedProducts() {
+            const selectedCheckboxes = document.querySelectorAll('.product-checkbox:checked');
+            const container = document.getElementById('selectedProductsContainer');
+            
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one product to save.');
+                return;
+            }
+            
+            // Clear previous selections
+            container.innerHTML = '';
+            
+            // Get all discovered products data
+            const allProducts = @Html.Raw(Json.Serialize(Model.DiscoveredProducts)) || [];
+            
+            let selectedIndex = 0;
+            selectedCheckboxes.forEach(checkbox => {
+                const productCard = checkbox.closest('.product-card');
+                const productName = productCard.getAttribute('data-product-name');
+                
+                // Find the product in the model data
+                const product = allProducts.find(p => p.productName === productName);
+                if (product) {
+                    // Add hidden inputs for selected product
+                    const productNameInput = document.createElement('input');
+                    productNameInput.type = 'hidden';
+                    productNameInput.name = `DiscoveredProducts[${selectedIndex}].ProductName`;
+                    productNameInput.value = product.productName;
+                    container.appendChild(productNameInput);
+                    
+                    const ourPriceInput = document.createElement('input');
+                    ourPriceInput.type = 'hidden';
+                    ourPriceInput.name = `DiscoveredProducts[${selectedIndex}].OurPrice`;
+                    ourPriceInput.value = product.ourPrice || '';
+                    container.appendChild(ourPriceInput);
+                    
+                    // Add competitor prices if they exist
+                    if (product.competitorPrices && product.competitorPrices.length > 0) {
+                        product.competitorPrices.forEach((compPrice, compIndex) => {
+                            const retailerInput = document.createElement('input');
+                            retailerInput.type = 'hidden';
+                            retailerInput.name = `DiscoveredProducts[${selectedIndex}].CompetitorPrices[${compIndex}].RetailerName`;
+                            retailerInput.value = compPrice.retailerName || '';
+                            container.appendChild(retailerInput);
+                            
+                            const priceInput = document.createElement('input');
+                            priceInput.type = 'hidden';
+                            priceInput.name = `DiscoveredProducts[${selectedIndex}].CompetitorPrices[${compIndex}].Price`;
+                            priceInput.value = compPrice.price || '';
+                            container.appendChild(priceInput);
+                            
+                            const urlInput = document.createElement('input');
+                            urlInput.type = 'hidden';
+                            urlInput.name = `DiscoveredProducts[${selectedIndex}].CompetitorPrices[${compIndex}].Url`;
+                            urlInput.value = compPrice.url || '';
+                            container.appendChild(urlInput);
+                        });
+                    }
+                    
+                    selectedIndex++;
+                }
+            });
+            
+            // Show confirmation
+            if (confirm(`Save ${selectedCheckboxes.length} selected product(s)?`)) {
+                document.getElementById('saveProductsForm').submit();
+            }
+        }
+        
+        function sortProducts(sortBy) {
+            const container = document.getElementById('products-container');
+            const products = Array.from(container.querySelectorAll('.product-card'));
+            
+            products.sort((a, b) => {
+                const nameA = a.querySelector('h4').textContent;
+                const nameB = b.querySelector('h4').textContent;
+                
+                switch(sortBy) {
+                    case 'price-low':
+                        return nameA.localeCompare(nameB);
+                    case 'price-high':
+                        return nameB.localeCompare(nameA);
+                    default:
+                        return 0;
+                }
+            });
+            
+            products.forEach(product => container.appendChild(product));
+        }
+        
+    </script>
+</body>
+</html>

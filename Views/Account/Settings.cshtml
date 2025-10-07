@@ -1,0 +1,294 @@
+@model PricePulse.ViewModels.AccountSettingsViewModel
+@{
+    ViewData["Title"] = "PricePulse Account Settings";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style type="text/tailwindcss">
+        :root {
+          --brand-purple: #5d288a;
+          --brand-red: #f94037;
+          --brand-cyan: #0cb8ca;
+          --background-light: #eff9f2;
+        }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'brand-purple': 'var(--brand-purple)',
+              'brand-red': 'var(--brand-red)',
+              'brand-cyan': 'var(--brand-cyan)',
+              'background-light': 'var(--background-light)',
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+</head>
+<body class="font-display bg-background-light text-gray-800">
+    <div class="flex flex-col min-h-screen">
+        <header class="border-b border-gray-200 bg-white/50 backdrop-blur-sm sticky top-0">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex h-20 items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-10" />
+                        <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                    </div>
+                    <nav class="hidden md:flex items-center gap-8">
+                        <a class="text-sm font-medium text-gray-600 hover:text-brand-purple transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Trackers</a>
+                        <a class="text-sm font-medium text-gray-600 hover:text-brand-purple transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Alerts</a>
+                        <a class="text-sm font-medium text-brand-purple" href="@Url.Action("Settings", "Account")">
+                            <span class="material-symbols-outlined">person</span>
+                            Account
+                        </a>
+                    </nav>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-cover bg-center border-2 border-brand-cyan" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDk5Lmk2rwmDMFlVF6wSRsh07lHBxHIpMo1AF4zqN-y4US7S_pL6z7qHo9PoM2TNA0bSPyIBCduPOemqyi_iAbWZO1DVz-UIvOiiZQrL8Rl67wutcXx31U1-syO-kALcz70cSxw1d9lWNEdBm8xcpdtdqRbM59oCVWb-a7O8HpCHavi_8BZnogffNptF6gOL3BCWks2OTfkupY8OsJKnEASX_LEjkp1wDGxAgvXvuSzuL7m13XFwE_xN9StT9km2vcWcYJe4rZEuA");'></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+            <div class="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6 md:p-10">
+                <div class="text-center mb-8 md:mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Account Settings</h2>
+                    <p class="mt-3 text-base text-gray-500">Let's update your account details step by step.</p>
+                </div>
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        @TempData["Error"]
+                    </div>
+                }
+
+                @if (TempData["Message"] != null)
+                {
+                    <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                        @TempData["Message"]
+                    </div>
+                }
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="md:w-1/3">
+                        <div class="space-y-4 sticky top-24">
+                            <div class="flex items-center gap-4 p-3 rounded-lg cursor-pointer @(Model.CurrentStep == 1 ? "bg-brand-purple text-white" : "hover:bg-gray-100 text-gray-600")" onclick="showStep(1)">
+                                <span class="flex items-center justify-center w-8 h-8 rounded-full @(Model.CurrentStep == 1 ? "bg-white text-brand-purple" : "bg-gray-200 text-gray-700") font-bold">1</span>
+                                <span class="font-medium">Profile Information</span>
+                            </div>
+                            <div class="flex items-center gap-4 p-3 rounded-lg cursor-pointer @(Model.CurrentStep == 2 ? "bg-brand-purple text-white" : "hover:bg-gray-100 text-gray-600")" onclick="showStep(2)">
+                                <span class="flex items-center justify-center w-8 h-8 rounded-full @(Model.CurrentStep == 2 ? "bg-white text-brand-purple" : "bg-gray-200 text-gray-700") font-bold">2</span>
+                                <span class="font-medium">Password Change</span>
+                            </div>
+                            <div class="flex items-center gap-4 p-3 rounded-lg cursor-pointer @(Model.CurrentStep == 3 ? "bg-brand-purple text-white" : "hover:bg-gray-100 text-gray-600")" onclick="showStep(3)">
+                                <span class="flex items-center justify-center w-8 h-8 rounded-full @(Model.CurrentStep == 3 ? "bg-white text-brand-purple" : "bg-gray-200 text-gray-700") font-bold">3</span>
+                                <span class="font-medium">Security Alerts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="md:w-2/3">
+                        <form class="space-y-6" id="settings-form" method="post" action="@Url.Action("UpdateProfile", "Account")">
+                            <div class="border rounded-lg p-6 @(Model.CurrentStep == 1 ? "" : "hidden")" id="step-1-form">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-5">Step 1: Profile Information</h3>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="name">Full Name</label>
+                                    <input class="form-input block w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-brand-purple focus:ring-brand-purple sm:text-sm h-12 px-4 placeholder:text-gray-400 transition-all duration-200" 
+                                           id="name" name="FirstName" placeholder="Your Full Name" type="text" value="@Model.FirstName" required/>
+                                </div>
+                                <div class="mt-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="email">Email Address</label>
+                                    <input class="form-input block w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-brand-purple focus:ring-brand-purple sm:text-sm h-12 px-4 placeholder:text-gray-400 transition-all duration-200" 
+                                           id="email" name="Email" placeholder="you@example.com" type="email" value="@Model.Email" readonly/>
+                                </div>
+                                <div class="mt-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="phone">Phone Number</label>
+                                    <input class="form-input block w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-brand-purple focus:ring-brand-purple sm:text-sm h-12 px-4 placeholder:text-gray-400 transition-all duration-200" 
+                                           id="phone" name="PhoneNumber" placeholder="+1 (555) 123-4567" type="tel" value="@Model.PhoneNumber"/>
+                                </div>
+                                <div class="mt-5">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="bio">Bio</label>
+                                    <textarea class="form-input block w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-brand-purple focus:ring-brand-purple sm:text-sm px-4 py-3 placeholder:text-gray-400 transition-all duration-200" 
+                                              id="bio" name="Bio" placeholder="Tell us about yourself..." rows="4">@Model.Bio</textarea>
+                                </div>
+                            </div>
+
+                            <div class="hidden border rounded-lg p-6 @(Model.CurrentStep == 2 ? "" : "hidden")" id="step-2-form">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-5">Step 2: Change Password</h3>
+                                <form method="post" action="@Url.Action("ChangePassword", "Account")">
+                                    <div>
+                                        <label class="block text-sm font-medium text-brand-purple mb-2" for="current-password">Current Password</label>
+                                        <input class="form-input block w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-brand-purple focus:ring-brand-purple sm:text-sm h-12 px-4 placeholder:text-gray-400 transition-all duration-200" 
+                                               id="current-password" name="CurrentPassword" placeholder="Your Current Password" type="password" required/>
+                                    </div>
+                                    <div class="mt-5">
+                                        <label class="block text-sm font-medium text-brand-purple mb-2" for="new-password">New Password</label>
+                                        <input class="form-input block w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-brand-purple focus:ring-brand-purple sm:text-sm h-12 px-4 placeholder:text-gray-400 transition-all duration-200" 
+                                               id="new-password" name="NewPassword" placeholder="Enter a new secure password" type="password" required/>
+                                    </div>
+                                    <div class="mt-5">
+                                        <label class="block text-sm font-medium text-brand-purple mb-2" for="confirm-password">Confirm New Password</label>
+                                        <input class="form-input block w-full rounded-lg border-gray-300 bg-white shadow-sm focus:border-brand-purple focus:ring-brand-purple sm:text-sm h-12 px-4 placeholder:text-gray-400 transition-all duration-200" 
+                                               id="confirm-password" name="ConfirmPassword" placeholder="Confirm your new password" type="password" required/>
+                                    </div>
+                                    <div class="bg-brand-red/10 border-l-4 border-brand-red p-4 rounded-md mt-5">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                <svg class="h-5 w-5 text-brand-red" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path clip-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 14a1 1 0 110-2 1 1 0 010 2zm-1-4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" fill-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm text-brand-red">Updating your password will log you out of all other sessions.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="hidden border rounded-lg p-6 @(Model.CurrentStep == 3 ? "" : "hidden")" id="step-3-form">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-5">Step 3: Security Alerts</h3>
+                                <p class="text-gray-600 mb-4">Choose which security events you want to be notified about.</p>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input class="form-checkbox h-5 w-5 text-brand-purple rounded focus:ring-brand-purple" type="checkbox" checked/>
+                                            <span class="ml-3 text-gray-700">Login from a new device</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input class="form-checkbox h-5 w-5 text-brand-purple rounded focus:ring-brand-purple" type="checkbox" checked/>
+                                            <span class="ml-3 text-gray-700">Password change</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input class="form-checkbox h-5 w-5 text-brand-purple rounded focus:ring-brand-purple" type="checkbox"/>
+                                            <span class="ml-3 text-gray-700">Email address change</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="flex items-center">
+                                            <input class="form-checkbox h-5 w-5 text-brand-purple rounded focus:ring-brand-purple" type="checkbox"/>
+                                            <span class="ml-3 text-gray-700">Failed login attempts</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between pt-6">
+                                <button class="rounded-lg bg-gray-300 px-6 py-3 text-base font-semibold text-gray-800 shadow-sm hover:bg-gray-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500 transition-all duration-200" 
+                                        id="prev-btn" type="button" hidden onclick="previousStep()">
+                                    Previous
+                                </button>
+                                <button class="rounded-lg bg-brand-purple px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand-purple/30 hover:bg-brand-purple/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-purple transition-all duration-200" 
+                                        id="next-btn" type="button" onclick="nextStep()">
+                                    Next
+                                </button>
+                                <button class="hidden rounded-lg bg-brand-purple px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand-purple/30 hover:bg-brand-purple/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-purple transition-all duration-200" 
+                                        id="save-btn" type="submit">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <p class="mt-8 text-center text-xs text-gray-500">
+                    Need help? Contact us at
+                    <a class="font-medium text-brand-cyan hover:underline" href="mailto:support@pricepulse.com">support@pricepulse.com</a>.
+                </p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentStep = @Model.CurrentStep;
+
+        function showStep(stepIndex) {
+            // Hide all steps
+            document.querySelectorAll('[id$="-form"]').forEach(step => {
+                step.classList.add('hidden');
+            });
+
+            // Show selected step
+            const stepElement = document.getElementById(`step-${stepIndex}-form`);
+            if (stepElement) {
+                stepElement.classList.remove('hidden');
+            }
+
+            // Update sidebar indicators
+            document.querySelectorAll('.md\\:w-1\\/3 > div > div').forEach((el, index) => {
+                const stepNumber = index + 1;
+                const indicator = el.querySelector('span:first-child');
+                if (stepNumber === stepIndex) {
+                    el.classList.add('bg-brand-purple', 'text-white');
+                    el.classList.remove('hover:bg-gray-100', 'text-gray-600');
+                    indicator.classList.add('bg-white', 'text-brand-purple');
+                    indicator.classList.remove('bg-gray-200', 'text-gray-700');
+                } else {
+                    el.classList.remove('bg-brand-purple', 'text-white');
+                    el.classList.add('hover:bg-gray-100', 'text-gray-600');
+                    indicator.classList.add('bg-gray-200', 'text-gray-700');
+                    indicator.classList.remove('bg-white', 'text-brand-purple');
+                }
+            });
+
+            // Update button visibility
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const saveBtn = document.getElementById('save-btn');
+
+            if (stepIndex === 1) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+
+            if (stepIndex === 3) {
+                nextBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+            }
+
+            currentStep = stepIndex;
+        }
+
+        function nextStep() {
+            if (currentStep < 3) {
+                showStep(currentStep + 1);
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            showStep(currentStep);
+        });
+    </script>
+</body>
+</html>

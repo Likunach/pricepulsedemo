@@ -1,0 +1,214 @@
+@{
+    ViewData["Title"] = "PricePulse Landing Page";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5d288a",
+                        "accent": "#f94037",
+                        "background-light": "#eff9f2",
+                        "secondary-accent": "#0cb8ca",
+                        "text-primary": "#1a1a1a",
+                        "text-secondary": "#4d4d4d",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+        .animate-pulse-delay {
+            animation-delay: 1s;
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-text-primary">
+    <div class="flex flex-col min-h-screen">
+        <header class="sticky top-0 z-50 bg-background-light/90 backdrop-blur-md">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- <div class="flex items-center justify-between h-24">
+                    <div class="flex items-center space-x-3">
+                        <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-10" />
+                        <h1 class="text-3xl font-bold text-text-primary">PricePulse</h1>
+                    </div>
+                    <nav class="hidden md:flex items-center space-x-10">
+                        <a class="text-base font-medium text-text-secondary hover:text-primary transition-colors" href="#features">Features</a>
+                    </nav>
+                    <div class="flex items-center space-x-4">
+                        @if (User?.Identity?.IsAuthenticated == true)
+                        {
+                            <a class="hidden sm:inline-block text-base font-medium text-text-secondary hover:text-primary transition-colors" href="@Url.Action("Logout", "Account")">Logout</a>
+                            <a class="bg-primary text-white px-6 py-3 rounded-full text-base font-semibold hover:bg-opacity-90 transition-transform transform hover:scale-105 shadow-lg shadow-primary/30" href="@Url.Action("Index", "ProductDiscovery")">Dashboard</a>
+                        }
+                        else
+                        {
+                            <a class="hidden sm:inline-block text-base font-medium text-text-secondary hover:text-primary transition-colors" href="@Url.Action("Login", "Account")">Login</a>
+                            <a class="bg-primary text-white px-6 py-3 rounded-full text-base font-semibold hover:bg-opacity-90 transition-transform transform hover:scale-105 shadow-lg shadow-primary/30" href="@Url.Action("Create", "Account")">Get Started</a>
+                        }
+                    </div>
+                </div> -->
+            </div>
+        </header>
+        
+        <main class="flex-grow">
+            <section class="relative py-32 sm:py-40 lg:py-48">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter text-text-primary leading-tight">
+                        Monitor Prices. <br class="hidden sm:block"/> Maximize <span class="text-primary">Profits</span>.
+                    </h1>
+                    <p class="mt-6 max-w-2xl mx-auto text-lg sm:text-xl text-text-secondary">Every price move and market shift tells a story. We exist to translate that story for you, helping you find the few signals that truly matter.</p>
+                    <div class="mt-12 flex flex-col sm:flex-row justify-center items-center gap-4">
+                        <a class="w-full sm:w-auto bg-accent text-white px-10 py-4 rounded-full text-lg font-bold hover:bg-opacity-90 transition-transform transform hover:scale-105 shadow-lg shadow-accent/40" href="@Url.Action("Create", "Account")">Start Tracking</a>
+                        <a class="w-full sm:w-auto bg-transparent text-primary px-10 py-4 rounded-full text-lg font-bold ring-2 ring-inset ring-primary hover:bg-primary hover:text-white transition-all duration-300" href="@Url.Action("Login", "Account")">Login</a>
+                    </div>
+                </div>
+                <div aria-hidden="true" class="absolute inset-x-0 top-0 -z-10 h-full w-full overflow-hidden">
+                    <div class="absolute top-1/4 left-1/4 h-72 w-72 bg-secondary-accent/40 rounded-full blur-3xl opacity-50 animate-pulse"></div>
+                    <div class="absolute bottom-1/4 right-1/4 h-72 w-72 bg-accent/40 rounded-full blur-3xl opacity-50 animate-pulse-delay"></div>
+                    <div class="absolute top-10 right-1/3 h-56 w-56 bg-primary/30 rounded-full blur-3xl opacity-60 animate-pulse"></div>
+                        </div>
+            </section>
+            
+            <section class="py-24 sm:py-32">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                        <div class="p-6">
+                            <h3 class="text-5xl font-black text-secondary-accent">10,000+</h3>
+                            <p class="mt-3 text-lg text-text-secondary">Products Monitored</p>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-5xl font-black text-accent">24/7</h3>
+                            <p class="mt-3 text-lg text-text-secondary">Continuous Tracking</p>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-5xl font-black text-primary">99.9%</h3>
+                            <p class="mt-3 text-lg text-text-secondary">Data Accuracy</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+            <section class="py-24 sm:py-32 bg-white/50 rounded-xl" id="features">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-20">
+                        <h2 class="text-4xl sm:text-5xl font-bold text-text-primary tracking-tight">Everything You Need to Succeed</h2>
+                        <p class="mt-4 max-w-2xl mx-auto text-lg text-text-secondary">Our powerful features are designed to give you a competitive edge.</p>
+        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="bg-background-light p-8 rounded-xl border-2 border-transparent hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
+                            <div class="flex items-center justify-center h-16 w-16 rounded-full bg-primary text-white">
+                                <span class="material-symbols-outlined text-4xl">monitoring</span>
+    </div>
+                            <h3 class="mt-6 text-2xl font-bold text-text-primary">Real-Time Monitoring</h3>
+                            <p class="mt-2 text-base text-text-secondary">Track competitor prices across multiple platforms with instant updates.</p>
+        </div>
+                        <div class="bg-background-light p-8 rounded-xl border-2 border-transparent hover:border-accent transition-all duration-300 transform hover:-translate-y-2">
+                            <div class="flex items-center justify-center h-16 w-16 rounded-full bg-accent text-white">
+                                <span class="material-symbols-outlined text-4xl">notifications_active</span>
+            </div>
+                            <h3 class="mt-6 text-2xl font-bold text-text-primary">Smart Alerts</h3>
+                            <p class="mt-2 text-base text-text-secondary">Receive instant notifications when prices change, so you never miss an opportunity.</p>
+            </div>
+                        <div class="bg-background-light p-8 rounded-xl border-2 border-transparent hover:border-secondary-accent transition-all duration-300 transform hover:-translate-y-2">
+                            <div class="flex items-center justify-center h-16 w-16 rounded-full bg-secondary-accent text-white">
+                                <span class="material-symbols-outlined text-4xl">analytics</span>
+            </div>
+                            <h3 class="mt-6 text-2xl font-bold text-text-primary">Historical Analytics</h3>
+                            <p class="mt-2 text-base text-text-secondary">Analyze historical price data to identify trends and optimize your pricing strategy.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+            <section class="py-24 sm:py-32" id="demo">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="bg-gradient-to-r from-primary to-accent rounded-xl p-12 sm:p-16 lg:p-20 text-center text-white">
+                        <h2 class="text-4xl sm:text-5xl font-bold">Ready to Elevate Your Business?</h2>
+                        <p class="mt-4 max-w-2xl mx-auto text-lg text-white/80">Join thousands of businesses using PricePulse to stay ahead. Get started today.</p>
+                        <div class="mt-10">
+                            <a class="inline-block bg-white text-primary px-10 py-4 rounded-full text-lg font-bold hover:bg-opacity-90 transition-transform transform hover:scale-105 shadow-2xl" href="@Url.Action("Create", "Account")">Get Started for Free</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="bg-background-light">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="flex justify-center items-center">
+                    <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
+                        <a class="text-sm text-text-secondary hover:text-primary transition-colors" href="#contact">Contact</a>
+                        <a class="text-sm text-text-secondary hover:text-primary transition-colors" href="#privacy">Privacy Policy</a>
+                        <a class="text-sm text-text-secondary hover:text-primary transition-colors" href="#terms">Terms of Service</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+<script>
+        function requestDemo() {
+            // Get user email if available, otherwise prompt
+            let email = '';
+            if (window.prompt) {
+                email = prompt('Enter your email for demo request:');
+                if (email) {
+                    // Submit demo request
+                    fetch('@Url.Action("RequestDemo", "Home")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: 'email=' + encodeURIComponent(email) + '&company=' + encodeURIComponent('Demo Request')
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Thank you! We\'ll be in touch soon to schedule your demo.');
+                        } else {
+                            alert('There was an error submitting your demo request. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error submitting your demo request. Please try again.');
+                    });
+                }
+            }
+        }
+
+function scrollToDemo() {
+    document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

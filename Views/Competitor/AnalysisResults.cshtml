@@ -1,0 +1,335 @@
+@model PricePulse.ViewModels.CompetitorAnalysisResultsViewModel
+@{
+    ViewData["Title"] = "PricePulse - Competitor Analysis";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#5d288a",
+                        "accent": "#f94037",
+                        "background-light": "#eff9f2",
+                        "secondary-accent": "#0cb8ca"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.75rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light font-display text-gray-800">
+    <div class="flex min-h-screen flex-col">
+        <header class="sticky top-0 z-50 w-full border-b border-gray-200/50 bg-background-light/90 backdrop-blur-md">
+            <div class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-20 items-center justify-between">
+                    <div class="flex items-center gap-8">
+                        <a class="flex items-center gap-2" href="@Url.Action("Index", "ProductDiscovery")">
+                            <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-10" />
+                            <span class="text-2xl font-bold text-gray-900">PricePulse</span>
+                        </a>
+                        <nav class="hidden items-center gap-8 md:flex">
+                            <a class="text-base font-medium text-primary" href="@Url.Action("Index", "Competitor")">Analysis</a>
+                            <a class="text-base font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Products</a>
+                            <a class="text-base font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "Competitor")">Competitors</a>
+                            <a class="text-base font-medium text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "ProductDiscovery")">Alerts</a>
+                        </nav>
+                    </div>
+                    <div class="flex items-center gap-4">
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <main class="flex-1">
+            <div class="mx-auto max-w-screen-2xl px-4 py-12 sm:px-6 lg:px-8">
+                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h1 class="text-4xl font-extrabold tracking-tight text-gray-900">
+                            Analysis Results
+                        </h1>
+                        <p class="mt-2 text-base text-gray-600">
+                            Last updated on @Model.LastAnalyzed.ToString("MMM dd, yyyy, HH:mm tt")
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <a href="@Url.Action("List", "Competitor", new { domain = Model.Domain })" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors flex items-center space-x-2">
+                            <span class="material-symbols-outlined">arrow_back</span>
+                            <span>Back to Competitors</span>
+                        </a>
+                        <form action="@Url.Action("AnalyzeAllCompetitorProducts", "Competitor")" method="post" class="inline">
+                            <input type="hidden" name="domain" value="@Model.Domain" />
+                            <button class="flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-base font-semibold text-white shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all duration-300 transform hover:scale-105">
+                                <span class="material-symbols-outlined text-xl">sync</span>
+                                Run New Analysis
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                @if (TempData["Success"] != null)
+                {
+                    <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700">
+                        @TempData["Success"]
+                    </div>
+                }
+                
+                @if (TempData["Error"] != null)
+                {
+                    <div class="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                        @TempData["Error"]
+                    </div>
+                }
+                
+                <div class="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+                    <div class="rounded-xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-[1.02]">
+                        <p class="text-base font-medium text-gray-700">
+                            Total Products Analyzed
+                        </p>
+                        <div class="mt-4 flex items-baseline gap-2">
+                            <p class="text-5xl font-extrabold text-primary">
+                                @Model.TotalProducts
+                            </p>
+                            <div class="text-sm font-semibold text-green-600 flex items-center gap-1 bg-green-100 px-2 py-1 rounded-full">
+                                <span class="material-symbols-outlined text-base">arrow_upward</span>
+                                <span>@(Model.TotalProducts > 0 ? (Model.ProductsWithPrices * 100 / Model.TotalProducts).ToString("F0") : "0")%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rounded-xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-[1.02]">
+                        <p class="text-base font-medium text-gray-700">
+                            Pricing Opportunities
+                        </p>
+                        <div class="mt-4 flex items-baseline gap-2">
+                            <p class="text-5xl font-extrabold text-blue-600">
+                                @Model.ProductsWithPrices
+                            </p>
+                            <div class="text-sm font-semibold text-green-600 flex items-center gap-1 bg-green-100 px-2 py-1 rounded-full">
+                                <span class="material-symbols-outlined text-base">arrow_upward</span>
+                                <span>@(Model.TotalProducts > 0 ? (Model.ProductsWithPrices * 100 / Model.TotalProducts).ToString("F0") : "0")%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rounded-xl bg-white p-6 shadow-lg transition-transform duration-300 hover:scale-[1.02]">
+                        <p class="text-base font-medium text-gray-700">
+                            Average Price Position
+                        </p>
+                        <div class="mt-4 flex items-baseline gap-2">
+                            <p class="text-5xl font-extrabold text-orange-600">@Model.TotalCompetitors</p>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600">
+                            Competitors analyzed
+                        </p>
+                    </div>
+                </div>
+                
+                @if (Model.AnalysisResults?.Any() == true)
+                {
+                    <div class="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-5">
+                        <div class="lg:col-span-3 rounded-xl bg-white p-6 shadow-lg">
+                            <h3 class="font-bold text-xl text-gray-900">Product Distribution by Competitor</h3>
+                            <p class="text-sm text-gray-600">
+                                Visualizing market share for analyzed products.
+                            </p>
+                            <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 items-end h-64">
+                                @foreach (var result in Model.AnalysisResults.Take(3))
+                                {
+                                    <div class="flex flex-col items-center gap-3">
+                                        <div class="w-full @(result == Model.AnalysisResults.First() ? "bg-primary" : result == Model.AnalysisResults.Skip(1).First() ? "bg-blue-500" : "bg-green-500") rounded-t-lg shadow-lg @(result == Model.AnalysisResults.First() ? "shadow-primary/30" : result == Model.AnalysisResults.Skip(1).First() ? "shadow-blue-500/30" : "shadow-green-500/30")" style="height: @(result.TotalProducts * 100 / Model.AnalysisResults.Max(r => r.TotalProducts))%;"></div>
+                                        <p class="text-sm font-semibold">@result.CompetitorDomain</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2 rounded-xl bg-white p-6 shadow-lg">
+                            <h3 class="font-bold text-xl text-gray-900">Average Price Comparison</h3>
+                            <p class="text-sm text-gray-600">
+                                Average price points across competitors.
+                            </p>
+                            <div class="mt-8 space-y-6">
+                                @foreach (var result in Model.AnalysisResults.Take(3))
+                                {
+                                    <div class="space-y-1">
+                                        <p class="text-sm font-semibold">@result.CompetitorDomain</p>
+                                        <div class="h-3 w-full rounded-full bg-gray-200">
+                                            <div class="h-3 rounded-full @(result == Model.AnalysisResults.First() ? "bg-primary" : result == Model.AnalysisResults.Skip(1).First() ? "bg-blue-500" : "bg-green-500")" style="width: @(result.AveragePrice.HasValue ? (result.AveragePrice.Value * 100 / Model.AnalysisResults.Where(r => r.AveragePrice.HasValue).Max(r => r.AveragePrice!.Value)) : 0)%;"></div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-10">
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            Key Product Insights
+                        </h2>
+                        <div class="mt-4 overflow-x-auto rounded-xl bg-white shadow-lg">
+                            <table class="w-full text-left">
+                                <thead class="text-sm text-gray-600">
+                                    <tr>
+                                        <th class="px-6 py-4 font-semibold" scope="col">Competitor</th>
+                                        <th class="px-6 py-4 font-semibold" scope="col">Status</th>
+                                        <th class="px-6 py-4 font-semibold" scope="col">Products Found</th>
+                                        <th class="px-6 py-4 font-semibold" scope="col">Products with Prices</th>
+                                        <th class="px-6 py-4 font-semibold" scope="col">Average Price</th>
+                                        <th class="px-6 py-4 font-semibold" scope="col">Price Range</th>
+                                        <th class="px-6 py-4 text-right font-semibold" scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var result in Model.AnalysisResults)
+                                    {
+                                        <tr class="border-t border-gray-200">
+                                            <th class="px-6 py-5 font-semibold text-gray-900 whitespace-nowrap" scope="row">
+                                                <a href="https://@result.CompetitorDomain" target="_blank" class="hover:text-primary">
+                                                    @result.CompetitorDomain
+                                                    <span class="material-symbols-outlined text-xs ml-1">open_in_new</span>
+                                                </a>
+                                            </th>
+                                            <td class="px-6 py-5">
+                                                @if (result.Success)
+                                                {
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <span class="material-symbols-outlined text-xs mr-1">check_circle</span>
+                                                        Success
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <span class="material-symbols-outlined text-xs mr-1">error</span>
+                                                        Failed
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary text-white">@result.TotalProducts</span>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">@result.ProductsWithPrices</span>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                @if (result.AveragePrice.HasValue)
+                                                {
+                                                    <span class="font-bold">$@result.AveragePrice.Value.ToString("F2")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-gray-400">N/A</span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                @if (result.MinPrice.HasValue && result.MaxPrice.HasValue)
+                                                {
+                                                    <span class="text-gray-600">$@result.MinPrice.Value.ToString("F2") - $@result.MaxPrice.Value.ToString("F2")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-gray-400">N/A</span>
+                                                }
+                                            </td>
+                                            <td class="px-6 py-5 text-right">
+                                                <div class="flex items-center justify-end space-x-2">
+                                                    <a href="@Url.Action("CompetitorDetails", "Competitor", new { domain = result.CompetitorDomain })" class="text-gray-400 hover:text-primary transition-colors" title="View Details">
+                                                        <span class="material-symbols-outlined">visibility</span>
+                                                    </a>
+                                                    @if (result.Success && result.Products?.Any() == true)
+                                                    {
+                                                        <a href="@Url.Action("Index", "ProductDiscovery", new { competitorDomain = result.CompetitorDomain })" class="text-gray-400 hover:text-accent transition-colors" title="Analyze Products">
+                                                            <span class="material-symbols-outlined">shopping_cart</span>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="mt-10 text-center py-20">
+                        <div class="h-24 w-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <span class="material-symbols-outlined text-4xl text-gray-400">analytics</span>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">No Analysis Results</h3>
+                        <p class="text-gray-600 mb-8">Start by analyzing competitor products</p>
+                        <form action="@Url.Action("AnalyzeAllCompetitorProducts", "Competitor")" method="post">
+                            <input type="hidden" name="domain" value="@Model.Domain" />
+                            <button type="submit" class="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors inline-flex items-center space-x-2">
+                                <span class="material-symbols-outlined">search</span>
+                                <span>Analyze All Products</span>
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </main>
+        
+        <footer class="bg-background-light mt-16">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+                        <p class="text-sm text-gray-600">© 2024 PricePulse. All rights reserved.</p>
+                        <nav class="flex gap-6">
+                            <a class="text-sm text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Privacy Policy</a>
+                            <a class="text-sm text-gray-600 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">Terms of Service</a>
+                        </nav>
+                    </div>
+                    <div class="flex gap-4">
+                        <a class="text-gray-400 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">
+                            <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M247.39,68.94A8,8,0,0,0,240,64H209.57A48.66,48.66,0,0,0,168.1,40a46.91,46.91,0,0,0-33.75,13.7A47.9,47.9,0,0,0,120,88v6.09C79.74,83.47,46.81,50.72,46.46,50.37a8,8,0,0,0-13.65,4.92c-4.31,47.79,9.57,79.77,22,98.18a110.93,110.93,0,0,0,21.88,24.2c-15.23,17.53-39.21,26.74-39.47,26.84a8,8,0,0,0-3.85,11.93c.75,1.12,3.75,5.05,11.08,8.72C53.51,229.7,65.48,232,80,232c70.67,0,129.72-54.42,135.75-124.44l29.91-29.9A8,8,0,0,0,247.39,68.94Zm-45,29.41a8,8,0,0,0-2.32,5.14C196,166.58,143.28,216,80,216c-10.56,0-18-1.4-23.22-3.08,11.51-6.25,27.56-17,37.88-32.48A8,8,0,0,0,92,169.08c-.47-.27-43.91-26.34-44-96,16,13,45.25,33.17,78.67,38.79A8,8,0,0,0,136,104V88a32,32,0,0,1,9.6-22.92A30.94,30.94,0,0,1,167.9,56c12.66.16,24.49,7.88,29.44,19.21A8,8,0,0,0,204.67,80h16Z"></path>
+                            </svg>
+                        </a>
+                        <a class="text-gray-400 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">
+                            <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm8,191.63V152h24a8,8,0,0,0,0-16H136V112a16,16,0,0,1,16-16h16a8,8,0,0,0,0-16H152a32,32,0,0,0-32,32v24H96a8,8,0,0,0,0,16h24v63.63a88,88,0,1,1,16,0Z"></path>
+                            </svg>
+                        </a>
+                        <a class="text-gray-400 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")">
+                            <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+

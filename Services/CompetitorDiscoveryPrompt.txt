@@ -1,0 +1,17 @@
+Find 5-10 direct competitors for $URL. Return ONLY JSON in this exact format:
+
+{
+  "competitor_analysis": {
+    "total_competitors_found": 5,
+    "competitors": [
+      {
+        "company_name": "Samsung",
+        "website_url": "https://www.samsung.com",
+        "description": "South Korean electronics company",
+        "competition_reason": "Makes smartphones and tablets",
+        "company_type": "enterprise",
+        "market_position": "leader"
+      }
+    ]
+  }
+}

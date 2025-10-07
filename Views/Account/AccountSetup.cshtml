@@ -1,0 +1,197 @@
+@{
+    ViewData["Title"] = "PricePulse - Account Setup";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --brand-purple: #5d288a;
+            --brand-orange: #f94037;
+            --brand-cyan: #0cb8ca;
+            --background-light: #eff9f2;
+        }
+        .password-strength-indicator::-webkit-progress-bar {
+            background-color: #e5e7eb;
+        }
+        .password-strength-indicator.strength-weak::-webkit-progress-value {
+            background-color: var(--brand-orange);
+        }
+        .password-strength-indicator.strength-medium::-webkit-progress-value {
+            background-color: var(--brand-cyan);
+        }
+        .password-strength-indicator.strength-strong::-webkit-progress-value {
+            background-color: var(--brand-purple);
+        }
+    </style>
+</head>
+<body class="bg-[var(--background-light)] font-['Inter'] text-gray-900 antialiased">
+    <div class="flex flex-col min-h-screen">
+        <header class="w-full">
+            <nav class="container mx-auto px-6 py-6 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="flex -space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-[var(--brand-purple)]"></div>
+                        <div class="w-10 h-10 rounded-full bg-[var(--brand-orange)] opacity-80"></div>
+                        <div class="w-10 h-10 rounded-full bg-[var(--brand-cyan)] opacity-80"></div>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">PricePulse</h1>
+                </div>
+            </nav>
+        </header>
+        
+        <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div class="w-full max-w-lg space-y-8">
+                <div class="text-center">
+                    <h2 class="text-4xl font-black text-gray-900">
+                        Finalize Your Account
+                    </h2>
+                    <p class="mt-3 text-lg text-gray-600">
+                        Just one last step. Create a secure password to protect your pulse on prices.
+                    </p>
+                </div>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                        @ViewBag.Error
+                    </div>
+                }
+
+                <div class="mt-8 space-y-6">
+                    <form action="@Url.Action("AccountSetup", "Account")" class="space-y-6" method="POST">
+                        <input type="hidden" name="token" value="@ViewBag.Token" />
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="sr-only" for="password">Password</label>
+                                <input class="appearance-none rounded-xl relative block w-full px-4 py-4 border-2 border-gray-300 placeholder-gray-400 text-[var(--brand-purple)] bg-white focus:outline-none focus:ring-[var(--brand-purple)] focus:border-[var(--brand-purple)] focus:z-10 text-base" id="password" name="password" placeholder="Create a password" required="" type="password"/>
+                            </div>
+                            <div>
+                                <label class="sr-only" for="confirmPassword">Confirm Password</label>
+                                <input class="appearance-none rounded-xl relative block w-full px-4 py-4 border-2 border-gray-300 placeholder-gray-400 text-[var(--brand-purple)] bg-white focus:outline-none focus:ring-[var(--brand-purple)] focus:border-[var(--brand-purple)] focus:z-10 text-base" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required="" type="password"/>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3 pt-2">
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm font-medium text-gray-700">Password Strength</p>
+                                <span class="text-sm font-bold" id="strength-text"></span>
+                            </div>
+                            <progress class="w-full h-2.5 rounded-full password-strength-indicator" id="password-strength" max="100" value="0"></progress>
+                            <ul class="text-xs text-gray-500 list-disc list-inside space-y-1 pt-1">
+                                <li>Minimum 8 characters</li>
+                                <li>Use upper &amp; lowercase letters</li>
+                                <li>Include at least one number</li>
+                                <li>Add a special character (!@@#$%)</li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <button class="group relative w-full flex justify-center py-4 px-4 border border-transparent text-lg font-bold rounded-full text-white transition-all duration-300 ease-in-out" style="background-color: #F94239; border-color: #F94239;" onmouseover="this.style.backgroundColor='#5D288A'; this.style.borderColor='#5D288A';" onmouseout="this.style.backgroundColor='#F94239'; this.style.borderColor='#F94239';" type="submit">
+                                Set Password &amp; Launch
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <p class="text-center text-sm text-gray-500">
+                    Already have an account? <a class="font-medium text-[var(--brand-purple)] hover:underline" href="@Url.Action("Login", "Account")">Log in</a>
+                </p>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const strengthBar = document.getElementById('password-strength');
+        const strengthText = document.getElementById('strength-text');
+        const submitButton = document.querySelector('button[type="submit"]');
+        
+        function checkPasswordStrength() {
+            const password = passwordInput.value;
+            let score = 0;
+            
+            if (password.length >= 8) score += 25;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score += 25;
+            if (/\d/.test(password)) score += 25;
+            if (/[^A-Za-z0-9]/.test(password)) score += 25;
+            
+            strengthBar.value = score;
+            strengthBar.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+            
+            if (score < 50) {
+                strengthText.textContent = 'Weak';
+                strengthText.className = 'text-sm font-bold text-[var(--brand-orange)]';
+                strengthBar.classList.add('strength-weak');
+            } else if (score < 75) {
+                strengthText.textContent = 'Medium';
+                strengthText.className = 'text-sm font-bold text-[var(--brand-cyan)]';
+                strengthBar.classList.add('strength-medium');
+            } else {
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'text-sm font-bold text-[var(--brand-purple)]';
+                strengthBar.classList.add('strength-strong');
+            }
+        }
+        
+        function checkPasswordMatch() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                confirmPasswordInput.classList.add('border-red-500');
+                confirmPasswordInput.classList.remove('border-gray-300');
+            } else {
+                confirmPasswordInput.classList.remove('border-red-500');
+                confirmPasswordInput.classList.add('border-gray-300');
+            }
+        }
+        
+        function validateForm() {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            const isValid = password.length >= 8 && 
+                           password === confirmPassword && 
+                           /[a-z]/.test(password) && 
+                           /[A-Z]/.test(password) && 
+                           /\d/.test(password);
+            
+            submitButton.disabled = !isValid;
+            
+            if (isValid) {
+                submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                submitButton.classList.add('hover:bg-opacity-90');
+            } else {
+                submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+                submitButton.classList.remove('hover:bg-opacity-90');
+            }
+        }
+        
+        passwordInput.addEventListener('input', () => {
+            checkPasswordStrength();
+            checkPasswordMatch();
+            validateForm();
+        });
+        
+        confirmPasswordInput.addEventListener('input', () => {
+            checkPasswordMatch();
+            validateForm();
+        });
+        
+        // Initial validation
+        validateForm();
+    </script>
+</body>
+</html>

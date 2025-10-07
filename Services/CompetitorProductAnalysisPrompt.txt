@@ -1,0 +1,34 @@
+Analyze the website at $URL and identify all products. For each product found, find the top 20 retailers that sell the same products within $company location.
+
+Return json formatted table with following: product name, our price, price for each retailer and URL of the product purchase page of given retailer.
+
+The response should be in this exact JSON format:
+{
+  "competitor_analysis": {
+    "total_products_found": 0,
+    "products": [
+      {
+        "product_name": "Product Name",
+        "product_description": "Product Description",
+        "competitor_price": "Price",
+        "competitor_currency": "Currency",
+        "product_category": "Category",
+        "product_image_url": "Image URL",
+        "competitor_product_url": "Product URL",
+        "retailers": [
+          {
+            "retailer_name": "Retailer Name",
+            "retailer_url": "Retailer Website",
+            "product_url": "Product Purchase URL",
+            "price": "Price",
+            "currency": "Currency",
+            "availability": "In Stock/Out of Stock",
+            "shipping_info": "Shipping Information",
+            "rating": "Rating",
+            "reviews_count": "Number of Reviews"
+          }
+        ]
+      }
+    ]
+  }
+}

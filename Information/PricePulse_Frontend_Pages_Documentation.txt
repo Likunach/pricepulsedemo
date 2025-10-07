@@ -1,0 +1,270 @@
+PRICEPULSE FRONTEND PAGES DOCUMENTATION
+==========================================
+
+This document provides a comprehensive overview of all frontend pages in the PricePulse competitive pricing intelligence platform.
+
+OVERVIEW
+--------
+PricePulse is a competitive pricing intelligence platform that helps businesses monitor competitor prices, discover products using AI, and make data-driven pricing decisions. The application is built using ASP.NET Core MVC with a modern, responsive frontend.
+
+AUTHENTICATION & ACCOUNT MANAGEMENT
+===================================
+
+1. HOME PAGE (/)
+   - File: Views/Home/Index.cshtml
+   - Controller: HomeController.Index()
+   - Description: Landing page with hero section showcasing the platform's value proposition
+   - Features:
+     * Hero section with "Stay Ahead with Competitive Price Intelligence" messaging
+     * Feature cards highlighting real-time monitoring, smart alerts, historical analytics
+     * Call-to-action buttons for account creation
+     * Statistics display (10,000+ products monitored, 24/7 tracking, 99.9% accuracy)
+     * Dashboard preview showing price comparison cards
+     * Demo request functionality
+   - User Access: Public (no authentication required)
+
+2. ACCOUNT CREATION (/Account/Create)
+   - File: Views/Account/Create.cshtml
+   - Controller: AccountController.Create()
+   - Description: User registration form for new account creation
+   - Features:
+     * Form fields: email, secondary email, phone number, first name, last name, area code
+     * Phone number normalization with area code handling
+     * Email validation and duplicate account checking
+     * Redirects to email verification after successful submission
+   - User Access: Public (no authentication required)
+
+3. EMAIL VERIFICATION (/Account/EmailVerification)
+   - File: Views/Account/EmailVerification.cshtml
+   - Controller: AccountController.EmailVerification()
+   - Description: Email verification page with resend functionality
+   - Features:
+     * Displays verification status and instructions
+     * Resend verification email functionality
+     * Handles existing account scenarios
+   - User Access: Public (no authentication required)
+
+4. ACCOUNT SETUP (/Account/AccountSetup)
+   - File: Views/Account/AccountSetup.cshtml
+   - Controller: AccountController.AccountSetup()
+   - Description: Password creation and account finalization
+   - Features:
+     * Password creation with confirmation
+     * Password strength validation (minimum 8 characters)
+     * Token-based verification
+     * Redirects to company information after completion
+   - User Access: Public (requires valid verification token)
+
+5. COMPANY INFORMATION (/Account/CompanyInfo)
+   - File: Views/Account/CompanyInfo.cshtml
+   - Controller: AccountController.CompanyInfo()
+   - Description: Company profile setup during registration
+   - Features:
+     * Company details: name, industry, website, description
+     * Address information: address, city, country, zip code
+     * Completes the registration process
+     * Redirects to home page after completion
+   - User Access: Public (requires valid verification token)
+
+6. LOGIN (/Account/Login)
+   - File: Views/Account/Login.cshtml
+   - Controller: AccountController.Login()
+   - Description: User authentication page
+   - Features:
+     * Email and password login form
+     * Social login integration (Google, Microsoft)
+     * Password recovery link (placeholder)
+     * Redirect to account creation for new users
+     * Cookie-based authentication with 7-day persistence
+   - User Access: Public (no authentication required)
+
+7. ACCOUNT INFO (/Account/Info)
+   - File: Views/Account/Info.cshtml
+   - Controller: AccountController.Info()
+   - Description: User profile information display and management
+   - Features:
+     * Displays user profile information
+     * Shows contact details and bio
+     * Editable user information
+   - User Access: Authenticated users only
+
+8. COMPANIES MANAGEMENT (/Account/Companies)
+   - File: Views/Account/Companies.cshtml
+   - Controller: AccountController.Companies()
+   - Description: Company profile management interface
+   - Features:
+     * List all companies associated with the user
+     * Add new company profiles
+     * Edit existing company information
+     * Company details: name, website, description, industry
+     * Address management for each company
+     * Support for multiple companies per user
+   - User Access: Authenticated users only
+
+PRODUCT DISCOVERY & MANAGEMENT
+==============================
+
+9. PRODUCT DISCOVERY INDEX (/ProductDiscovery/Index)
+   - File: Views/ProductDiscovery/Index.cshtml
+   - Controller: ProductDiscoveryController.Index()
+   - Description: AI-powered product discovery interface
+   - Features:
+     * Website URL input for product discovery
+     * Company location specification (optional)
+     * AI-powered product identification using OpenAI
+     * Loading overlay with progress indication
+     * Manual product entry option
+     * Integration with competitor analysis
+   - User Access: Authenticated users only
+
+10. PRODUCT DISCOVERY RESULTS (/ProductDiscovery/Results)
+    - File: Views/ProductDiscovery/Results.cshtml
+    - Controller: ProductDiscoveryController.DiscoverProducts()
+    - Description: Display discovered products and competitor pricing
+    - Features:
+      * Shows AI-discovered products from the website
+      * Displays competitor pricing information
+      * Product confirmation and selection
+      * Save products to database functionality
+      * Modify search prompt for refined results
+      * Integration with competitor analysis workflow
+    - User Access: Authenticated users only
+
+11. MANUAL PRODUCT ENTRY (/ProductDiscovery/ManualEntry)
+    - File: Views/ProductDiscovery/ManualEntry.cshtml
+    - Controller: ProductDiscoveryController.ManualEntry()
+    - Description: Manual product and competitor entry form
+    - Features:
+      * Own product information entry
+      * Competitor product details
+      * Direct competitor URL specification
+      * Save to database functionality
+      * Alternative to AI discovery
+    - User Access: Authenticated users only
+
+COMPETITOR ANALYSIS & MONITORING
+=================================
+
+12. COMPETITOR DISCOVERY (/Competitor/Index)
+    - File: Views/Competitor/Index.cshtml
+    - Controller: CompetitorController.Index()
+    - Description: Competitor discovery and management interface
+    - Features:
+      * Domain input for competitor discovery
+      * Manual competitor management and identification
+      * Manual competitor entry option
+      * Competitor confirmation workflow
+      * Sample data display when API limits reached
+    - User Access: Authenticated users only
+
+13. COMPETITOR LIST (/Competitor/List)
+    - File: Views/Competitor/List.cshtml
+    - Controller: CompetitorController.List()
+    - Description: Display discovered and confirmed competitors
+    - Features:
+      * List all competitors for a domain
+      * Competitor refresh functionality
+      * Analysis initiation for all competitors
+      * Individual competitor analysis options
+      * Competitor management actions
+    - User Access: Authenticated users only
+
+14. COMPETITOR DETAILS (/Competitor/CompetitorDetails)
+    - File: Views/Competitor/CompetitorDetails.cshtml
+    - Controller: CompetitorController.CompetitorDetails()
+    - Description: Detailed view of individual competitor analysis
+    - Features:
+      * Single competitor analysis results
+      * Product discovery for specific competitor
+      * Pricing information display
+      * Competitor-specific insights
+    - User Access: Authenticated users only
+
+15. ANALYSIS RESULTS (/Competitor/AnalysisResults)
+    - File: Views/Competitor/AnalysisResults.cshtml
+    - Controller: CompetitorController.AnalysisResults()
+    - Description: Comprehensive competitor analysis results
+    - Features:
+      * Multi-competitor analysis summary
+      * Total products discovered across competitors
+      * Products with pricing information
+      * Analysis statistics and metrics
+      * Last analyzed timestamp
+    - User Access: Authenticated users only
+
+SHARED LAYOUTS & COMPONENTS
+===========================
+
+16. MAIN LAYOUT (_Layout.cshtml)
+    - File: Views/Shared/_Layout.cshtml
+    - Description: Main application layout template
+    - Features:
+      * Navigation header with user authentication status
+      * Footer with company information
+      * Responsive design implementation
+      * CSS and JavaScript includes
+      * User menu with logout functionality
+
+17. ACCOUNT LAYOUT (_AccountLayout.cshtml)
+    - File: Views/Shared/_AccountLayout.cshtml
+    - Description: Specialized layout for account-related pages
+    - Features:
+      * Clean, focused design for forms
+      * Account-specific styling
+      * Simplified navigation
+      * Form validation support
+
+18. VALIDATION SCRIPTS (_ValidationScriptsPartial.cshtml)
+    - File: Views/Shared/_ValidationScriptsPartial.cshtml
+    - Description: Client-side validation scripts
+    - Features:
+      * ASP.NET Core validation integration
+      * Form validation feedback
+      * Error message display
+
+TECHNICAL FEATURES
+==================
+
+Authentication & Security:
+- Cookie-based authentication with 7-day persistence
+- Social login integration (Google, Microsoft)
+- Password hashing with SHA256 + salt
+- Email verification workflow
+- Session management
+
+Data Integration:
+- OpenAI API for AI-powered product discovery
+- Manual competitor management
+- PostgreSQL database with Entity Framework Core
+- Real-time data processing and caching
+
+User Experience:
+- Responsive design for all screen sizes
+- Loading states and progress indicators
+- Form validation with user feedback
+- Error handling and user notifications
+- Intuitive navigation flow
+
+Business Logic:
+- Multi-company support per user
+- Product-competitor relationship mapping
+- Price tracking and analysis
+- Automated competitor monitoring
+- AI-powered insights and recommendations
+
+NAVIGATION FLOW
+===============
+
+Public Users:
+Home → Create Account → Email Verification → Account Setup → Company Info → Home (logged in)
+
+Authenticated Users:
+Home → Login → Product Discovery → Competitor Analysis → Results Management
+
+Key User Journeys:
+1. Registration: Create → Verify → Setup → Company → Dashboard
+2. Product Discovery: Enter URL → AI Analysis → Review Results → Save Products
+3. Competitor Analysis: Enter Domain → Discover Competitors → Analyze → View Results
+4. Account Management: Profile Info → Company Management → Settings
+
+This documentation provides a complete overview of all frontend pages and their functionality for the PricePulse competitive pricing intelligence platform.

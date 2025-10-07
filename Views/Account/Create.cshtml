@@ -1,0 +1,189 @@
+@{
+    ViewData["Title"] = "PricePulse - Create Account";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>@ViewData["Title"]</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        :root {
+          --primary-color: #5d288a;
+          --accent-orange: #f94037;
+          --accent-blue: #0cb8ca;
+          --background-light: #eff9f2;
+          --text-dark: #1a1a1a;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                "primary": "var(--primary-color)",
+                "accent": "var(--accent-orange)",
+                "secondary-accent": "var(--accent-blue)",
+                "background-light": "var(--background-light)",
+                "text-dark": "var(--text-dark)",
+              },
+              fontFamily: {
+                "display": ["Inter", "sans-serif"]
+              },
+            },
+          },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light text-text-dark">
+    <div class="relative min-h-screen overflow-hidden">
+        <div class="absolute -top-20 -left-40 w-96 h-96 bg-primary/20 rounded-full blur-3xl opacity-50"></div>
+        <div class="absolute -bottom-20 -right-40 w-96 h-96 bg-accent/20 rounded-full blur-3xl opacity-50"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-secondary-accent/10 rounded-full blur-3xl opacity-50"></div>
+        <div class="relative flex flex-col min-h-screen">
+            <header class="sticky top-0 z-20">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-24">
+                        <!-- <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 flex items-center justify-center">
+                                <img src="/images/logo.png" alt="PricePulse logo" class="h-10 w-10" />
+                            </div>
+                            <h1 class="text-3xl font-extrabold text-primary">PricePulse</h1>
+                        </div> -->
+                        <nav class="hidden md:flex items-center gap-8">
+                            <!-- <a class="text-sm font-medium text-gray-700 hover:text-primary transition-colors" href="@Url.Action("Index", "Home")#features">Features</a> -->
+                        </nav>
+                        <div class="flex items-center gap-4">
+                            <a class="px-6 py-3 text-sm font-bold text-white bg-accent rounded-full hover:bg-accent/90 transition-all duration-300 ease-in-out shadow-lg hover:shadow-accent/40" href="@Url.Action("Login", "Account")">Log in</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <main class="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <div class="w-full max-w-lg space-y-8">
+                    <div class="text-center">
+                        <h2 class="text-5xl font-extrabold tracking-tight text-text-dark">
+                            Get Started with <span class="text-primary">PricePulse</span>
+                        </h2>
+                        <p class="mt-4 text-lg text-gray-600">
+                            Create an account and start saving today!
+                        </p>
+                    </div>
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                            @TempData["Error"]
+                        </div>
+                    }
+
+                    @if (TempData["Message"] != null)
+                    {
+                        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                            @TempData["Message"]
+                        </div>
+                    }
+
+                    <form action="@Url.Action("Create", "Account")" class="space-y-6" method="POST">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" for="firstName">First Name</label>
+                                <input class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" id="firstName" name="firstName" placeholder="John" required="" type="text"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" for="lastName">Last Name</label>
+                                <input class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" id="lastName" name="lastName" placeholder="Doe" required="" type="text"/>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="email">Email address</label>
+                            <input autocomplete="email" class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" id="email" name="email" placeholder="you@example.com" required="" type="email"/>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1" for="secondaryEmail">Secondary Email (Optional)</label>
+                            <input class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" id="secondaryEmail" name="secondaryEmail" placeholder="backup@example.com" type="email"/>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1" for="areaCode">Area Code</label>
+                                <input class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" id="areaCode" name="areaCode" placeholder="+1" type="text"/>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1" for="phoneNumber">Phone Number</label>
+                                <input class="block w-full px-4 py-3 rounded-lg border-2 border-gray-200 bg-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition" id="phoneNumber" name="phoneNumber" placeholder="(555) 123-4567" type="tel"/>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" id="terms" name="terms" type="checkbox" required/>
+                            <label class="ml-2 block text-sm text-gray-900" for="terms">
+                                I agree to the <a class="font-medium text-primary hover:text-accent" href="@Url.Action("Terms", "Home")" target="_blank" rel="noopener">Terms of Service</a>
+                            </label>
+                        </div>
+                        
+                        <div>
+                            <button class="w-full flex justify-center py-4 px-4 border border-transparent rounded-full shadow-lg text-lg font-bold text-white bg-gradient-to-r from-primary via-accent to-secondary-accent hover:bg-gradient-to-l focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-primary transition-all duration-300" type="submit">
+                                Create My Account
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="relative mt-8">
+                        <div aria-hidden="true" class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-background-light text-gray-500">Or continue with</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 grid grid-cols-1 gap-4">
+                        <form method="post" action="@Url.Action("ExternalLogin", "Account")">
+                            <input type="hidden" name="returnUrl" value="@Url.Action("Index","Home")" />
+                            <button type="submit" name="provider" value="Google" class="flex items-center justify-center w-full py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                <svg class="h-5 w-5 mr-3" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+                                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+                                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+                                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+                                </svg>
+                                <span>Sign up with Google</span>
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="@Url.Action("ExternalLogin", "Account")">
+                            <input type="hidden" name="returnUrl" value="@Url.Action("Index","Home")" />
+                            <button type="submit" name="provider" value="Microsoft" class="flex items-center justify-center w-full py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                <svg class="h-5 w-5 mr-3" fill="currentColor" viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="10.5" height="10.5" x="1" y="1" fill="#F25022"/>
+                                    <rect width="10.5" height="10.5" x="11.5" y="1" fill="#7FBA00"/>
+                                    <rect width="10.5" height="10.5" x="1" y="11.5" fill="#00A4EF"/>
+                                    <rect width="10.5" height="10.5" x="11.5" y="11.5" fill="#FFB900"/>
+                                </svg>
+                                <span>Sign up with Microsoft</span>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <p class="text-sm text-center text-gray-600">
+                        Already have an account? 
+                        <a class="font-medium text-accent hover:text-primary transition-colors" href="@Url.Action("Login", "Account")">
+                            Log in
+                        </a>
+                    </p>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
